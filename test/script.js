@@ -1,4 +1,4 @@
-let switchAce = 'on'; // only needed in 'Blackjack program'
+let switchAce = true; // only needed in 'Blackjack program'
 
 // const array = ['3-clbs','2-clbs','A-clbs','Q-clbs','A-clbs']; // 17 || 17
 const array = ['3-clbs','A-clbs','2-clbs','Q-clbs','A-clbs']; // 17 || 27
@@ -25,12 +25,12 @@ function calcPoints(arrPerson) {
       points += 1;
     }
   }
-  if(switchAce === 'on') {
+  if(switchAce === true) {
     const allAces = arrPerson.filter((arr) => arr.charAt(0) === 'A');
     if(points > 21 && (points - (allAces.length + 10) < 11)) {
       allAces.length >= 2 ? points -= 10 : points;
     }
-    switchAce = 'off';
+    switchAce = false;
   } 
   return points;
 }

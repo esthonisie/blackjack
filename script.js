@@ -8,12 +8,10 @@ const scoreDealer = document.querySelector('#scoreDealer');
 const infoPlayer = document.querySelectorAll('.info.Player');
 const infoDealer = document.querySelectorAll('.info.Dealer');
 
-btnReplay.addEventListener('click', playGame);
+btnReplay.addEventListener('click', playRound);
 
-function playGame() {
-
-  reset();
-
+function playRound() {
+ 
   const cardName = {
     Clbs: 'Klaveren', // ' of Clubs'
     Dmds: 'Ruiten', // ' of Diamonds'
@@ -44,34 +42,23 @@ function playGame() {
   const arrDealer = [];
   const arrDealerRnd1 = [];
 
-  let switchBlackjack = 'on';
-  let switchReveal = 'off';
-  let switchHit = 'off';
-  let switchStand = 'off';
-  let switchAce = 'on';
+  let switchReveal = false;
+  let switchDeal = true;
+  let switchHit = false;
+  let switchStand = false;
+  let switchAce = true;
   
   //...............................................
 
-  btnHit.addEventListener('click', actionPlayer); 
+  btnHit.addEventListener('click', hit); 
   btnStand.addEventListener('click', stand);
-  
-  function actionPlayer() {
-    if(switchHit === 'on') {
-        hit();
-    } else if(switchHit === 'off') {
-        deal();
-        btnHit.textContent = 'Hit';
-    }
 
-    if(switchBlackjack === 'on') {
-        showInfoBJack(); 
-    } else {
-        showInfoHit();
-    }
-
-    showScore();
+  if(btnReplay.textContent === 'Replay') {
+    reset();
   }
-
+  
+  deal();
+  
   // Fisher-Yates algorithm
   function shuffle(array) { 
     for (let i = array.length - 1; i > 0; i--) { 
@@ -90,20 +77,34 @@ function playGame() {
   }
   
   function deal() {   
-    const result = [];
-    for(let i = 0; i < 4; i++) {
-      result.push(arrShuffled.splice(Math.floor(Math.random()*arrShuffled.length), 1)[0]);
-    }
-    arrPlayer.push(result[0],result[2]);
-    arrDealer.push(result[1],result[3]);
-    arrDealerRnd1.push(result[3]);
-    cardsPlayer.textContent = `${name(result[0])}, ${name(result[2])}.`;
-    cardsDealer.textContent = `Rugzijde, ${name(result[3])}.`;
+    if(switchDeal === true) {
+      switchHit = true;
+      switchStand = true;
+      btnHit.style.opacity = '1';
+      btnStand.style.opacity = '1';
+      btnReplay.style.opacity = '0.3';
+      btnReplay.removeEventListener('click', playRound);
+      const result = [];
+      for(let i = 0; i < 4; i++) {
+        result.push(arrShuffled.splice(Math.floor(Math.random()*arrShuffled.length), 1)[0]);
+      }
+      arrPlayer.push(result[0],result[2]);
+      arrDealer.push(result[1],result[3]);
+      arrDealerRnd1.push(result[3]);
+      cardsPlayer.textContent = `${name(result[0])}, ${name(result[2])}.`;
+      cardsDealer.textContent = `Rugzijde, ${name(result[3])}.`;
+      showScore();
+      if(calcDealer(arrPlayer) === 21 || calcDealer(arrDealer) === 21) {
+        showInfoBJack(); 
+      } else {
+        showInfoHit();
+      }
+    } 
   }
 
   function hit() {
     const result = arrShuffled.splice(Math.floor(Math.random()*arrShuffled.length), 1);
-    if(switchHit === 'on' && calcPlayer(arrPlayer) < 21) {
+    if(switchHit === true && calcPlayer(arrPlayer) < 21) {
       arrPlayer.push(result[0]);
       cardsPlayer.textContent = '';
       for(let i = 0; i < arrPlayer.length; i++) {
@@ -112,20 +113,23 @@ function playGame() {
       let strPeriod = cardsPlayer.textContent.slice(0, -2) + '.';
       cardsPlayer.textContent = strPeriod;
     }
+    showInfoHit();
+    showScore();
   }
 
   function stand() {
-    if(switchStand === 'on') {
-      switchReveal = 'on';
-      btnHit.removeEventListener('click', actionPlayer);
+    if(switchStand === true) {
+      switchReveal = true;
       for(let i = 0; calcDealer(arrDealer) <= 16; i++) {
         const result = arrShuffled.splice(Math.floor(Math.random()*arrShuffled.length), 1);
         arrDealer.push(result[0]);
       }
       showScore();
       showInfoStand();
+      btnHit.removeEventListener('click', hit);
       btnStand.removeEventListener('click', stand);
-      btnReplay.addEventListener('click', playGame);
+      btnReplay.addEventListener('click', reset);
+      btnReplay.textContent = 'Replay';
       btnHit.style.opacity = '0.3';
       btnStand.style.opacity = '0.3';
       btnReplay.style.opacity = '1';
@@ -150,12 +154,12 @@ function playGame() {
         points += 1;
       }
     }
-    if(switchAce === 'on') {
+    if(switchAce === true) {
       const allAces = arrPerson.filter((arr) => arr.charAt(0) === 'A');
       if(points > 21 && (points - (allAces.length + 10) < 11)) {
         allAces.length >= 2 ? points -= 10 : points;
       }
-      switchAce = 'off';
+      switchAce = false;
     } 
     return points;
   }
@@ -201,10 +205,12 @@ function playGame() {
   }
 
   function endGame() {
-    switchReveal = 'on';
-    btnReplay.addEventListener('click', playGame);
-    btnHit.removeEventListener('click', actionPlayer);
+    switchReveal = true;
+    showScore();
+    btnReplay.addEventListener('click', reset);
+    btnHit.removeEventListener('click', hit);
     btnStand.removeEventListener('click', stand);
+    btnReplay.textContent = 'Replay';
     btnHit.style.opacity = '0.3';
     btnStand.style.opacity = '0.3';
     btnReplay.style.opacity = '1';
@@ -212,9 +218,9 @@ function playGame() {
   
   function showScore() {
     scorePlayer.textContent = `score: ${calcPlayer(arrPlayer)}`;
-    if(switchReveal === 'off') {
+    if(switchReveal === false) {
         scoreDealer.textContent = `score: ${calcDealer(arrDealerRnd1)} + ?`;
-    } else if(switchReveal === 'on') {
+    } else if(switchReveal === true) {
         scoreDealer.textContent = `score: ${calcDealer(arrDealer)}`; 
         cardsDealer.textContent = '';
         for(let i = 0; i < arrDealer.length; i++) {
@@ -227,32 +233,25 @@ function playGame() {
 
   function showInfoBJack() {
     if(calcPlayer(arrPlayer) === 21 && calcDealer(arrDealer) !== 21) {
-        endGame();
         infoPlayer[0].textContent = "- BLACKJACK";
         infoPlayer[1].textContent = "- Je hebt gewonnen!!";
         infoDealer[0].textContent = "- Gefeliciteerd speler.";
         infoDealer[1].textContent = "- Nog een ronde?"; 
     } else if(calcDealer(arrDealer) === 21 && calcPlayer(arrPlayer) !== 21) {
-        endGame();
         infoPlayer[0].textContent = "- Helaas.";
         infoPlayer[1].textContent = "- Je hebt verloren."; 
         infoDealer[0].textContent = "- BLACKJACK";
         infoDealer[1].textContent = "- Dealer heeft gewonnen.";    
     } else if(calcPlayer(arrPlayer) === 21 && calcDealer(arrDealer) === 21) {
-        endGame();
         infoPlayer[0].textContent = "- BLACKJACK";
         infoPlayer[1].textContent = "- Helaas, ook de dealer heeft Blackjack."; 
         infoDealer[0].textContent = "- BLACKJACK";
         infoDealer[1].textContent = "- Het is gelijkspel geworden.";     
-    } else {
-        showInfoHit();
-        switchHit = 'on';
-        switchStand = 'on';
     }
+    endGame();
   } 
 
   function showInfoHit() {
-    switchBlackjack = 'off';
     if(calcPlayer(arrPlayer) < 21) {
         infoPlayer[0].textContent = "- Nog een kaart? druk op 'Hit'.";
         infoPlayer[1].textContent = "- Geen kaart erbij? druk op 'Pas'.";
@@ -306,11 +305,10 @@ function playGame() {
   }
 
   function reset() {
-    btnReplay.removeEventListener('click', playGame);
-    btnHit.textContent = 'Delen';
-    btnHit.style.opacity = '1';
-    btnStand.style.opacity = '1';
-    btnReplay.style.opacity = '0.3';
+    btnReplay.removeEventListener('click', reset);
+    btnReplay.addEventListener('click', playRound)
+    btnReplay.textContent = 'Deal';
+    switchDeal = false;
     infoPlayer[0].textContent = '';
     infoPlayer[1].textContent = '';
     cardsPlayer.textContent = '';
