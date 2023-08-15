@@ -1,322 +1,294 @@
 const btnHit = document.getElementById('btnHit');
 const btnStand = document.getElementById('btnStand');
-const btnReplay = document.getElementById('btnReplay');
+const btnDeal = document.getElementById('btnDeal');
 const cardsPlayer = document.querySelector('.cards.Player');
 const cardsDealer = document.querySelector('.cards.Dealer');
 const scorePlayer = document.querySelector('#scorePlayer');
 const scoreDealer = document.querySelector('#scoreDealer');
+const scoreDlrDeal = document.querySelector('#scoreDealer.hide');
 const infoPlayer = document.querySelectorAll('.info.Player');
-const infoDealer = document.querySelectorAll('.info.Dealer');
+const allText = document.querySelectorAll(
+  '.info.Player, .cards.Dealer, .cards.Player, #scoreDealer, #scorePlayer'
+);
 
-btnReplay.addEventListener('click', playRound);
+const playRound = () => {
+  btnDeal.textContent === 'Replay' ?
+  reset() : deal();
+};
 
-function playRound() {
- 
-  const cardName = {
-    Clbs: 'Klaveren', // ' of Clubs'
-    Dmds: 'Ruiten', // ' of Diamonds'
-    Hrts: 'Harten', // ' of Hearts'
-    Spds: 'Schoppen', // ' of Spades'
-    A: 'aas', // 'Ace'
-    J: 'boer', // 'Jack'
-    K: 'heer', // 'King'
-    Q: 'vrouw', // 'Queen'
-    T: 'tien', // 'Ten'
-    2: 'twee', // 'Two'
-    3: 'drie', // 'Three'
-    4: 'vier', // 'Four'
-    5: 'vijf', // 'Five'
-    6: 'zes', // 'Six'
-    7: 'zeven', // 'Seven'
-    8: 'acht', // 'Eight'
-    9: 'negen'  // 'Nine'
-  };
-  const arrCardDeck = [
-    'K-Clbs', 'Q-Clbs', 'J-Clbs', '2-Clbs', '3-Clbs', '4-Clbs', '5-Clbs', '6-Clbs', '7-Clbs', '8-Clbs', '9-Clbs', 'T-Clbs', 'A-Clbs', 
-    'K-Dmds', 'Q-Dmds', 'J-Dmds', '2-Dmds', '3-Dmds', '4-Dmds', '5-Dmds', '6-Dmds', '7-Dmds', '8-Dmds', '9-Dmds', 'T-Dmds', 'A-Dmds', 
-    'K-Hrts', 'Q-Hrts', 'J-Hrts', '2-Hrts', '3-Hrts', '4-Hrts', '5-Hrts', '6-Hrts', '7-Hrts', '8-Hrts', '9-Hrts', 'T-Hrts', 'A-Hrts', 
-    'K-Spds', 'Q-Spds', 'J-Spds', '2-Spds', '3-Spds', '4-Spds', '5-Spds', '6-Spds', '7-Spds', '8-Spds', '9-Spds', 'T-Spds', 'A-Spds'
+btnDeal.addEventListener('click', playRound);
+
+const switches =  {
+  reveal: false,
+};
+
+const arrPlayer = []; 
+const arrDealer = [];
+const arrDlrDeal = [];
+
+const arrCardDeck = () => {
+  const values = [
+    'K','Q','J','A','2','3','4','5','6','7','8','9','T'
   ];
-  const arrShuffled = shuffle(arrCardDeck);
-  const arrPlayer = []; 
-  const arrDealer = [];
-  const arrDealerRnd1 = [];
+  const suits = ['-Clbs','-Dmds','-Hrts','-Spds'];
+  const combi = [];
+  for(const value of values) {
+    for(const suit of suits) {
+      combi.push(value + suit);
+    }
+  } return combi;
+};
 
-  let switchReveal = false;
-  let switchDeal = true;
-  let switchHit = false;
-  let switchStand = false;
-  let switchAce = true;
-  
-  //...............................................
+// Fisher-Yates algorithm
+const shuffle = array => { 
+  for (let i = array.length - 1; i > 0; i--) { 
+    const j = Math.floor(Math.random() * (i + 1)); 
+    [array[i], array[j]] = [array[j], array[i]]; 
+  } 
+  return array; 
+};
 
+const arrShuffled = shuffle(arrCardDeck());
+
+const checkCardQuant = (arr) => {
+  if(arr.length <= 12) {
+    resetArr(arr);
+    for(const card of shuffle(arrCardDeck())) {
+      arr.push(card);
+    }
+  }
+};
+
+const deal = () => {   
   btnHit.addEventListener('click', hit); 
   btnStand.addEventListener('click', stand);
+  btnDeal.removeEventListener('click', playRound);
+  opacity(btnHit, 1);
+  opacity(btnStand, 1);
+  opacity(btnDeal, 0.3);
+  const result = [];
+  for(let i = 0; i < 4; i++) {
+    result.push(arrShuffled.splice(
+      Math.floor(Math.random()*arrShuffled.length), 1)[0]
+    );
+  }
+  arrPlayer.push(result[0],result[2]);
+  arrDealer.push(result[1],result[3]);
+  arrDlrDeal.push(result[3]);
+  cardsPlayer.textContent = `${result[0]} ${result[2]}`;
+  cardsDealer.textContent = `Rugzijde ${result[3]}`;
+  showScore();
+  calcAceFixed(arrPlayer) === 21 || 
+  calcAceFixed(arrDealer) === 21 ?
+  showInfoBJack() : showInfoHit();
+};
 
-  if(btnReplay.textContent === 'Replay') {
-    reset();
-  }
-  
-  deal();
-  
-  // Fisher-Yates algorithm
-  function shuffle(array) { 
-    for (let i = array.length - 1; i > 0; i--) { 
-      const j = Math.floor(Math.random() * (i + 1)); 
-      [array[i], array[j]] = [array[j], array[i]]; 
-    } 
-    return array; 
-  }
-
-  function name(array) {
-    const type = cardName[array.slice(2)];
-    const value = cardName[array.charAt(0)];
-    const combi = type + value;
-    // const combi = value + type; // english
-    return combi;
-  }
-  
-  function deal() {   
-    if(switchDeal === true) {
-      switchHit = true;
-      switchStand = true;
-      btnHit.style.opacity = '1';
-      btnStand.style.opacity = '1';
-      btnReplay.style.opacity = '0.3';
-      btnReplay.removeEventListener('click', playRound);
-      const result = [];
-      for(let i = 0; i < 4; i++) {
-        result.push(arrShuffled.splice(Math.floor(Math.random()*arrShuffled.length), 1)[0]);
-      }
-      arrPlayer.push(result[0],result[2]);
-      arrDealer.push(result[1],result[3]);
-      arrDealerRnd1.push(result[3]);
-      cardsPlayer.textContent = `${name(result[0])}, ${name(result[2])}.`;
-      cardsDealer.textContent = `Rugzijde, ${name(result[3])}.`;
-      showScore();
-      if(calcDealer(arrPlayer) === 21 || calcDealer(arrDealer) === 21) {
-        showInfoBJack(); 
-      } else {
-        showInfoHit();
-      }
-    } 
-  }
-
-  function hit() {
-    const result = arrShuffled.splice(Math.floor(Math.random()*arrShuffled.length), 1);
-    if(switchHit === true && calcPlayer(arrPlayer) < 21) {
-      arrPlayer.push(result[0]);
-      cardsPlayer.textContent = '';
-      for(let i = 0; i < arrPlayer.length; i++) {
-        cardsPlayer.textContent += `${name(arrPlayer[i])}, `;
-      }
-      let strPeriod = cardsPlayer.textContent.slice(0, -2) + '.';
-      cardsPlayer.textContent = strPeriod;
-    }
-    showInfoHit();
-    showScore();
-  }
-
-  function stand() {
-    if(switchStand === true) {
-      switchReveal = true;
-      for(let i = 0; calcDealer(arrDealer) <= 16; i++) {
-        const result = arrShuffled.splice(Math.floor(Math.random()*arrShuffled.length), 1);
-        arrDealer.push(result[0]);
-      }
-      showScore();
-      showInfoStand();
-      btnHit.removeEventListener('click', hit);
-      btnStand.removeEventListener('click', stand);
-      btnReplay.addEventListener('click', reset);
-      btnReplay.textContent = 'Replay';
-      btnHit.style.opacity = '0.3';
-      btnStand.style.opacity = '0.3';
-      btnReplay.style.opacity = '1';
+const hit = () => {
+  if(calcPlayer() < 21) {
+    const result = arrShuffled.splice(
+      Math.floor(Math.random()*arrShuffled.length), 1
+    );
+    arrPlayer.push(result[0]);
+    resetText(cardsPlayer);
+    for(let i = 0; i < arrPlayer.length; i++) {
+      cardsPlayer.textContent += `${arrPlayer[i]} `;
     }
   }
-  
-  function calcPlayer(arrPerson) {
-    let points = 0;
-    for(item of arrPerson) {
-      const result = item.charAt(0);
-      if(result === 'K' || result === 'Q' || result === 'J' || result === 'T') {
-          points += 10;
-      } else if(result === 'A') {
-        continue;
-      } else points += parseInt(result);
-    }
-    for(item of arrPerson) {
-      const result = item.charAt(0);
-      if(result === 'A' && points < 11) {
-          points += 11;
-      } else if(result === 'A' && points >= 11) {
+  showScore();
+  showInfoHit();
+  checkCardQuant(arrShuffled);
+};
+
+const stand = () => {
+  for(let i = 0; calcDealer() <= 16; i++) {
+    const result = arrShuffled.splice(
+      Math.floor(Math.random()*arrShuffled.length), 1
+    );
+    arrDealer.push(result[0]);
+  }
+  endGame();
+  showInfoStand();
+  checkCardQuant(arrShuffled);
+};
+
+const calcAceFixed = arrPerson => {
+  let points = 0;
+  for(const item of arrPerson) {
+    const result = item.charAt(0);
+    if(result === 'K' || result === 'Q' || result === 'J' || result === 'T') {
+        points += 10;
+    } else if(result === 'A' && points < 11) {
+        points += 11;
+    } else if(result === 'A' && points >= 11) {
         points += 1;
-      }
-    }
-    if(switchAce === true) {
-      const allAces = arrPerson.filter((arr) => arr.charAt(0) === 'A');
-      if(points > 21 && (points - (allAces.length + 10) < 11)) {
-        allAces.length >= 2 ? points -= 10 : points;
-      }
-      switchAce = false;
-    } 
-    return points;
-  }
+    } else points += parseInt(result);
+  } return points;
+};
 
-  function calcDealer(arrPerson) {
-    if(arrDealer[0].charAt(0) === 'A' || arrDealer[1].charAt(0) === 'A') {
-      let points = 0;
-      for(item of arrPerson) {
-        const result = item.charAt(0);
-        if(result === 'K' || result === 'Q' || result === 'J' || result === 'T') {
-            points += 10;
-        } else if(result === 'A' && points < 11) {
-            points += 11;
-        } else if(result === 'A' && points >= 11) {
-            points += 1;
-        } else points += parseInt(result);
-      }
-      return points;
-    } else {
-      let points = 0;
-      for(item of arrPerson) {
-        const result = item.charAt(0);
-        if(result === 'K' || result === 'Q' || result === 'J' || result === 'T') {
-            points += 10;
-        } else if(result === 'A') {
-            continue;
-        } else points += parseInt(result);
-      }
-      for(item of arrPerson) {
-        const result = item.charAt(0);
-        if(result === 'A' && points < 11) {
-            points += 11;
-        } else if(result === 'A' && points >= 11) {
-            points += 1;
-        }
-      }
-      const allAces = arrPerson.filter((arr) => arr.charAt(0) === 'A');
-      if(points > 21 && (points - (allAces.length + 10) < 11)) {
-        allAces.length >= 2 ? points -= 10 : points;
-      }
-      return points;
+const calcAceFluid = arrPerson => {
+  let points = 0;
+  for(const item of arrPerson) {
+    const result = item.charAt(0);
+    if(result === 'K' || result === 'Q' || result === 'J' || result === 'T') {
+        points += 10;
+    } else if(result === 'A') {
+      continue;
+    } else points += parseInt(result);
+  }
+  for(const item of arrPerson) {
+    const result = item.charAt(0);
+    if(result === 'A' && points < 11) {
+        points += 11;
+    } else if(result === 'A' && points >= 11) {
+      points += 1;
     }
-  }
+  } return points;
+};
 
-  function endGame() {
-    switchReveal = true;
-    showScore();
-    btnReplay.addEventListener('click', reset);
-    btnHit.removeEventListener('click', hit);
-    btnStand.removeEventListener('click', stand);
-    btnReplay.textContent = 'Replay';
-    btnHit.style.opacity = '0.3';
-    btnStand.style.opacity = '0.3';
-    btnReplay.style.opacity = '1';
-  }
-  
-  function showScore() {
-    scorePlayer.textContent = `score: ${calcPlayer(arrPlayer)}`;
-    if(switchReveal === false) {
-        scoreDealer.textContent = `score: ${calcDealer(arrDealerRnd1)} + ?`;
-    } else if(switchReveal === true) {
-        scoreDealer.textContent = `score: ${calcDealer(arrDealer)}`; 
-        cardsDealer.textContent = '';
-        for(let i = 0; i < arrDealer.length; i++) {
-          cardsDealer.textContent += `${name(arrDealer[i])}, `;
-        }
-        let strPeriod = cardsDealer.textContent.slice(0, -2) + '.';
-        cardsDealer.textContent = strPeriod;
-    } 
-  }
+const calcAceLowScore = (arrPerson, points) => {
+  const allAces = arrPerson.filter((arr) => arr.charAt(0) === 'A');
+  if(points > 21 && (points - (allAces.length + 10) < 11)) {
+    allAces.length >= 2 ? points -= 10 : points;
+  } return points;
+};
 
-  function showInfoBJack() {
-    if(calcPlayer(arrPlayer) === 21 && calcDealer(arrDealer) !== 21) {
-        infoPlayer[0].textContent = "- BLACKJACK";
-        infoPlayer[1].textContent = "- Je hebt gewonnen!!";
-        infoDealer[0].textContent = "- Gefeliciteerd speler.";
-        infoDealer[1].textContent = "- Nog een ronde?"; 
-    } else if(calcDealer(arrDealer) === 21 && calcPlayer(arrPlayer) !== 21) {
-        infoPlayer[0].textContent = "- Helaas.";
-        infoPlayer[1].textContent = "- Je hebt verloren."; 
-        infoDealer[0].textContent = "- BLACKJACK";
-        infoDealer[1].textContent = "- Dealer heeft gewonnen.";    
-    } else if(calcPlayer(arrPlayer) === 21 && calcDealer(arrDealer) === 21) {
-        infoPlayer[0].textContent = "- BLACKJACK";
-        infoPlayer[1].textContent = "- Helaas, ook de dealer heeft Blackjack."; 
-        infoDealer[0].textContent = "- BLACKJACK";
-        infoDealer[1].textContent = "- Het is gelijkspel geworden.";     
-    }
-    endGame();
+const calcPlayer = () => {
+  return calcAceLowScore(arrPlayer, calcAceFluid(arrPlayer));
+};
+
+const calcDealer = () => {
+  if(arrDealer[0].charAt(0) === 'A' || arrDealer[1].charAt(0) === 'A') {
+    return calcAceFixed(arrDealer);
+  } else return calcAceLowScore(arrDealer, calcAceFluid(arrDealer));
+};
+
+const showScore = () => {
+  scorePlayer.textContent = `${calcPlayer()}`;
+  if(switches.reveal === false) {
+      scoreDlrDeal.textContent = `${calcAceFixed(arrDlrDeal)} + ?`;
+  } else if(switches.reveal === true) {
+      scoreDealer.textContent = `${calcDealer()}`;
+      resetText(cardsDealer);
+      for(let i = 0; i < arrDealer.length; i++) {
+        cardsDealer.textContent += `${arrDealer[i]} `;
+      }
   } 
+};
 
-  function showInfoHit() {
-    if(calcPlayer(arrPlayer) < 21) {
-        infoPlayer[0].textContent = "- Nog een kaart? druk op 'Hit'.";
-        infoPlayer[1].textContent = "- Geen kaart erbij? druk op 'Pas'.";
-        infoDealer[0].textContent = "- Dealer 16 punten of minder?";
-        infoDealer[1].textContent = "- Kaart erbij voor dealer."; 
-    } else if(calcPlayer(arrPlayer) === 21 && calcDealer(arrDealer) !== 21) {
-        endGame();
-        infoPlayer[0].textContent = "- 21 punten!";
-        infoPlayer[1].textContent = "- Je hebt gewonnen!!";    
-        infoDealer[0].textContent = "- Gefeliciteerd speler.";
-        infoDealer[1].textContent = "- Nog een ronde?";   
-    } else if(calcPlayer(arrPlayer) === 22) {
-        endGame();
-        infoPlayer[0].textContent = "- 'BUST', 1 punt teveel.";
-        infoPlayer[1].textContent = "- Je hebt verloren.";
-        infoDealer[0].textContent = "- Goed gespeeld, maar helaas.";
-        infoDealer[1].textContent = "- Volgende ronde beter?"; 
-    } else {
-        endGame();
-        infoPlayer[0].textContent = `- 'BUST', ${(calcPlayer(arrPlayer) - 21)} punten teveel.`;
-        infoPlayer[1].textContent = "- Je hebt verloren.";
-        infoDealer[0].textContent = "- Dat is spijtig speler.";
-        infoDealer[1].textContent = "- Revanche?"; 
+const scoreTextPlr = () => {
+  return parseInt(scorePlayer.textContent);
+};
+
+const scoreTextDlr = () => {
+  return parseInt(scoreDealer.textContent);
+};
+
+const showInfoBJack = () => {
+  endGame();
+  if(scoreTextPlr() === 21 && scoreTextDlr() !== 21) {
+      infoPlayer[0].textContent = "BLACKJACK";
+      infoPlayer[1].textContent = "Je hebt gewonnen!!";
+      infoPlayer[2].textContent = "Gefeliciteerd speler.";
+      infoPlayer[3].textContent = "Nog een ronde?"; 
+  } else if(scoreTextDlr() === 21 && scoreTextPlr() !== 21) {
+      infoPlayer[0].textContent = "Helaas.";
+      infoPlayer[1].textContent = "Je hebt verloren."; 
+      infoPlayer[2].textContent = "BLACKJACK";
+      infoPlayer[3].textContent = "Dealer heeft gewonnen.";    
+  } else if(scoreTextPlr() === 21 && scoreTextDlr() === 21) {
+      infoPlayer[0].textContent = "BLACKJACK";
+      infoPlayer[1].textContent = "Helaas, ook de dealer heeft Blackjack."; 
+      infoPlayer[2].textContent = "BLACKJACK";
+      infoPlayer[3].textContent = "Het is gelijkspel geworden.";     
+  }
+}; 
+
+const showInfoHit = () => {
+  if(scoreTextPlr() < 21) {
+      infoPlayer[0].textContent = "Nog een kaart? druk op 'Hit'.";
+      infoPlayer[1].textContent = "Geen kaart erbij? druk op 'Pas'.";
+      infoPlayer[2].textContent = "Dealer 16 punten of minder?";
+      infoPlayer[3].textContent = "Kaart erbij voor dealer."; 
+  } else if(scoreTextPlr() === 21 && scoreTextDlr() !== 21) {
+      endGame();
+      infoPlayer[0].textContent = "21 punten!";
+      infoPlayer[1].textContent = "Je hebt gewonnen!!";    
+      infoPlayer[2].textContent = "Gefeliciteerd speler.";
+      infoPlayer[3].textContent = "Nog een ronde?";   
+  } else if(scoreTextPlr() === 22) {
+      endGame();
+      infoPlayer[0].textContent = "'BUST', 1 punt teveel.";
+      infoPlayer[1].textContent = "Je hebt verloren.";
+      infoPlayer[2].textContent = "Goed gespeeld, maar helaas.";
+      infoPlayer[3].textContent = "Volgende ronde beter?"; 
+  } else {
+      endGame();
+      infoPlayer[0].textContent = `'BUST', ${(scoreTextPlr() - 21)} punten teveel.`;
+      infoPlayer[1].textContent = "Je hebt verloren.";
+      infoPlayer[2].textContent = "Dat is spijtig speler.";
+      infoPlayer[3].textContent = "Revanche?"; 
+  }
+};
+
+const showInfoStand = () => {
+  if(scoreTextDlr() <= 21) {
+    if(scoreTextPlr() < scoreTextDlr()) {
+        infoPlayer[0].textContent = "Je hebt minder punten dan de dealer.";
+        infoPlayer[1].textContent = "Je hebt verloren.";    
+        infoPlayer[2].textContent = "Dat is spijtig speler.";
+        infoPlayer[3].textContent = "Revanche?"; 
+    } else if(scoreTextPlr() === scoreTextDlr()) {
+        infoPlayer[0].textContent = "'STAND-OFF'.";
+        infoPlayer[1].textContent = "Geen winnaars.";    
+        infoPlayer[2].textContent = "Gelijkspel.";
+        infoPlayer[3].textContent = "Geen verliezers."; 
+    } else if(scoreTextPlr() > scoreTextDlr()) {
+        infoPlayer[0].textContent = "Je hebt meer punten dan de dealer.";
+        infoPlayer[1].textContent = "Je hebt gewonnen!";    
+        infoPlayer[2].textContent = "Gefeliciteerd speler.";
+        infoPlayer[3].textContent = "Nog een ronde?";   
     }
+  } else if(scoreTextDlr() > 21) {
+      infoPlayer[0].textContent = "De dealer heeft teveel punten.";
+      infoPlayer[1].textContent = "Je hebt gewonnen!";    
+      infoPlayer[2].textContent = "'BUST'";
+      infoPlayer[3].textContent = "Gefeliciteerd speler.";   
   }
+};
 
-  function showInfoStand() {
-    if(calcDealer(arrDealer) <= 21) {
-        if(calcPlayer(arrPlayer) < calcDealer(arrDealer)) {
-            infoPlayer[0].textContent = "- Je hebt minder punten dan de dealer.";
-            infoPlayer[1].textContent = "- Je hebt verloren.";    
-            infoDealer[0].textContent = "- Dat is spijtig speler.";
-            infoDealer[1].textContent = "- Revanche?"; 
-        } else if(calcPlayer(arrPlayer) === calcDealer(arrDealer)) {
-            infoPlayer[0].textContent = "- 'STAND-OFF'.";
-            infoPlayer[1].textContent = "- Geen winnaars.";    
-            infoDealer[0].textContent = "- Gelijkspel.";
-            infoDealer[1].textContent = "- Geen verliezers."; 
-        } else if(calcPlayer(arrPlayer) > calcDealer(arrDealer)) {
-            infoPlayer[0].textContent = "- Je hebt meer punten dan de dealer.";
-            infoPlayer[1].textContent = "- Je hebt gewonnen!";    
-            infoDealer[0].textContent = "- Gefeliciteerd speler.";
-            infoDealer[1].textContent = "- Nog een ronde?";   
-        }
-    } else if(calcDealer(arrDealer) > 21) {
-        infoPlayer[0].textContent = "- De dealer heeft teveel punten.";
-        infoPlayer[1].textContent = "- Je hebt gewonnen!";    
-        infoDealer[0].textContent = "- 'BUST'";
-        infoDealer[1].textContent = "- Gefeliciteerd speler.";   
-    }
+const endGame = () => {
+  switches.reveal = true;
+  showScore();
+  btnDeal.textContent = 'Replay';
+  btnDeal.addEventListener('click', reset);
+  btnHit.removeEventListener('click', hit);
+  btnStand.removeEventListener('click', stand);
+  opacity(btnHit, 0.3);
+  opacity(btnStand, 0.3);
+  opacity(btnDeal, 1);
+};
+
+const opacity = (btn, value) => {
+  btn.style.opacity = `${value}`;
+};
+
+const resetArr = arr => {
+  arr.length = 0;
+};
+
+const resetText = item => {
+  item.textContent = '';
+};
+
+const reset = () => {
+  btnDeal.textContent = 'Deal';
+  btnDeal.removeEventListener('click', reset);
+  btnDeal.addEventListener('click', playRound);
+  resetArr(arrPlayer);
+  resetArr(arrDealer);
+  resetArr(arrDlrDeal);
+  switches.reveal = false;
+  for(const text of allText) {
+    resetText(text);
   }
-
-  function reset() {
-    btnReplay.removeEventListener('click', reset);
-    btnReplay.addEventListener('click', playRound)
-    btnReplay.textContent = 'Deal';
-    switchDeal = false;
-    infoPlayer[0].textContent = '';
-    infoPlayer[1].textContent = '';
-    cardsPlayer.textContent = '';
-    scorePlayer.textContent = 'score: ';
-    infoDealer[0].textContent = '';
-    infoDealer[1].textContent = '';
-    cardsDealer.textContent = '';
-    scoreDealer.textContent = 'score: ';
-  }
-}
-
+};
