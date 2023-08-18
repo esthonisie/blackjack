@@ -26,6 +26,11 @@ const arrPlayer = [];
 const arrDealer = [];
 const arrDlrDeal = [];
 
+const arrRotate = [
+  -2.5, -2, -1.5, -1, -0.5, 0.05, 
+  0.5, 1, 1.5, 2, 2.5
+];
+
 const arrCardDeck = () => {
   const values = [
     'K','Q','J','A','2','3','4','5','6','7','8','9','T'
@@ -49,6 +54,11 @@ const shuffle = array => {
 };
 
 const arrShuffled = shuffle(arrCardDeck());
+
+const arrRotaPlr = arrRotate.filter(() => true);
+const arrRotaDlr = arrRotate.filter(() => true);
+shuffle(arrRotaPlr);
+shuffle(arrRotaDlr);
 
 const checkCardQuant = (arr) => {
   if(arr.length <= 12) {
@@ -76,8 +86,8 @@ const deal = () => {
   arrDealer.push(result[1],result[3]);
   arrDlrDeal.push('Back');
   arrDlrDeal.push(result[3]);
-  showCards(cardsPlayer, arrPlayer);
-  showCards(cardsDealer, arrDlrDeal);
+  showCards(cardsPlayer, arrPlayer, arrRotaPlr);
+  showCards(cardsDealer, arrDlrDeal, arrRotaDlr);
   showScore();
   calcAceFixed(arrPlayer) === 21 || 
   calcAceFixed(arrDealer) === 21 ?
@@ -91,7 +101,7 @@ const hit = () => {
     );
     arrPlayer.push(result[0]);
     resetChild(cardsPlayer);
-    showCards(cardsPlayer, arrPlayer);
+    showCards(cardsPlayer, arrPlayer, arrRotaPlr);
   }
   showScore();
   showInfoHit();
@@ -163,12 +173,12 @@ const calcDealer = () => {
   } else return calcAceLowScore(arrDealer, calcAceFluid(arrDealer));
 };
 
-const showCards = (cardsPerson, arrPerson) => {
+const showCards = (cardsPerson, arrPerson, arrRotaPerson) => {
   for(let i = 0; i < arrPerson.length; i++) {
     const imgCard = document.createElement('img');
     imgCard.className = 'imgCard';
     imgCard.src = `./images/${arrPerson[i]}.png`;
-    imgCard.style.zIndex = [i];
+    imgCard.style.transform = `rotate(${arrRotaPerson[i]}deg)`
     cardsPerson.appendChild(imgCard);
   }
 };
@@ -180,7 +190,7 @@ const showScore = () => {
   } else if(switches.reveal === true) {
     scoreDealer.textContent = `${calcDealer()}`;
     resetChild(cardsDealer);  
-    showCards(cardsDealer, arrDealer);
+    showCards(cardsDealer, arrDealer, arrRotaDlr);
   } 
 };
 
@@ -302,6 +312,8 @@ const reset = () => {
   resetArr(arrPlayer);
   resetArr(arrDealer);
   resetArr(arrDlrDeal);
+  shuffle(arrRotaPlr);
+  shuffle(arrRotaDlr);
   switches.reveal = false;
   for(const text of allText) {
     resetText(text);

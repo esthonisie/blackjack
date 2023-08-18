@@ -87,8 +87,10 @@ button {
   height: 200px;
   background-color: #f1edd5;
   border-radius: 12px;
-  box-shadow: 0 0 12px rgba(31, 38, 113, 0.5);
-  margin-top: -100px;
+  box-shadow: 
+    0 0 12px rgba(31, 38, 113, 0.5), 
+    0 0 1px 0 #f1edd5;
+  margin-top: -130px;
   margin-left: -48px;
 }
 
@@ -99,6 +101,6 @@ button {
   flex-wrap: wrap;
   max-width: 220px;
   width: 220px;
-  padding-top: 100px;
+  padding-top: 130px;
   padding-left: 48px;
 }
