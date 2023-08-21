@@ -6,9 +6,10 @@ const cardsDealer = document.querySelector('.cardsDealer');
 const scorePlayer = document.querySelector('#scorePlayer');
 const scoreDealer = document.querySelector('#scoreDealer');
 const scoreDlrDeal = document.querySelector('#scoreDealer.hide');
-const infoPlayer = document.querySelectorAll('.info.Player');
+const info = document.querySelectorAll('.info');
+const infoBox = document.getElementById('containerInfo');
 const allText = document.querySelectorAll(
-  '.info.Player, #scoreDealer, #scorePlayer'
+  '.info, #scoreDealer, #scorePlayer'
 );
 
 const playRound = () => {
@@ -18,9 +19,27 @@ const playRound = () => {
 
 btnDeal.addEventListener('click', playRound);
 
-const switches =  {
+const game =  {
   reveal: false,
+  infoStart: true,
+  info1(txt) {
+    info[0].textContent = txt;
+  },
+  info2(txt) {
+    info[1].textContent = txt;
+  },
+  info3(txt) {
+    info[2].textContent = txt;
+  },
+  info4(txt) {
+    info[3].textContent = txt;
+  },
 };
+
+game.info2(
+  `Beat the dealer with trying to draw a higher hand value,
+  but don't go over 21 points!`); 
+game.info3("Push the DEAL button to start the game."); 
 
 const arrPlayer = []; 
 const arrDealer = [];
@@ -61,7 +80,7 @@ shuffle(arrRotaPlr);
 shuffle(arrRotaDlr);
 
 const checkCardQuant = (arr) => {
-  if(arr.length <= 12) {
+  if(arr.length <= 16) {
     resetArr(arr);
     for(const card of shuffle(arrCardDeck())) {
       arr.push(card);
@@ -76,6 +95,9 @@ const deal = () => {
   opacity(btnHit, 1);
   opacity(btnStand, 1);
   opacity(btnDeal, 0.3);
+  if(game.infoStart === true) {
+    infoBox.style.height = "240px";
+  }
   const result = [];
   for(let i = 0; i < 4; i++) {
     result.push(arrShuffled.splice(
@@ -103,9 +125,10 @@ const hit = () => {
     resetChild(cardsPlayer);
     showCards(cardsPlayer, arrPlayer, arrRotaPlr);
   }
+  game.infoStart = false;
+  infoBox.style.height = "165px";
   showScore();
   showInfoHit();
-  checkCardQuant(arrShuffled);
 };
 
 const stand = () => {
@@ -115,9 +138,10 @@ const stand = () => {
     );
     arrDealer.push(result[0]);
   }
+  game.infoStart = false;
+  infoBox.style.height = "165px";
   endGame();
   showInfoStand();
-  checkCardQuant(arrShuffled);
 };
 
 const calcAceFixed = arrPerson => {
@@ -185,9 +209,9 @@ const showCards = (cardsPerson, arrPerson, arrRotaPerson) => {
 
 const showScore = () => {
   scorePlayer.textContent = `${calcPlayer()}`;
-  if(switches.reveal === false) {
+  if(game.reveal === false) {
     scoreDlrDeal.textContent = `${calcAceFixed(arrDlrDeal)} + ?`;
-  } else if(switches.reveal === true) {
+  } else if(game.reveal === true) {
     scoreDealer.textContent = `${calcDealer()}`;
     resetChild(cardsDealer);  
     showCards(cardsDealer, arrDealer, arrRotaDlr);
@@ -203,80 +227,94 @@ const scoreTextDlr = () => {
 };
 
 const showInfoBJack = () => {
+  infoBox.style.height = "165px";
   endGame();
   if(scoreTextPlr() === 21 && scoreTextDlr() !== 21) {
-    infoPlayer[0].textContent = "BLACKJACK";
-    infoPlayer[1].textContent = "Je hebt gewonnen!!";
-    infoPlayer[2].textContent = "Gefeliciteerd speler.";
-    infoPlayer[3].textContent = "Nog een ronde?"; 
+    game.info1("BLACKJACK");
+    game.info2("Congratulations, you've won!!");
+    game.info3("You get FIVE extra lives!");
+    game.info4(''); 
   } else if(scoreTextDlr() === 21 && scoreTextPlr() !== 21) {
-    infoPlayer[0].textContent = "Helaas.";
-    infoPlayer[1].textContent = "Je hebt verloren."; 
-    infoPlayer[2].textContent = "BLACKJACK";
-    infoPlayer[3].textContent = "Dealer heeft gewonnen.";    
+    game.info1('');
+    game.info2("You're really out of luck.");
+    game.info3("You lose two lives.");
+    game.info4("BLACKJACK");    
   } else if(scoreTextPlr() === 21 && scoreTextDlr() === 21) {
-    infoPlayer[0].textContent = "BLACKJACK";
-    infoPlayer[1].textContent = "Helaas, ook de dealer heeft Blackjack."; 
-    infoPlayer[2].textContent = "BLACKJACK";
-    infoPlayer[3].textContent = "Het is gelijkspel geworden.";     
+    game.info1("BLACKJACK");
+    game.info2("No winners, no losers..."); 
+    game.info3("And no extra lives.");
+    game.info4("BLACKJACK");   
   }
 }; 
 
 const showInfoHit = () => {
   if(scoreTextPlr() < 21) {
-    infoPlayer[0].textContent = "Nog een kaart? druk op 'Hit'.";
-    infoPlayer[1].textContent = "Geen kaart erbij? druk op 'Pas'.";
-    infoPlayer[2].textContent = "Dealer 16 punten of minder?";
-    infoPlayer[3].textContent = "Kaart erbij voor dealer."; 
+    game.info1('');
+    if(infoBox.style.height === "240px") {
+      game.info2("One live for one card (push HIT). Don't want to buy more cards? Push STAND.");
+      game.info3("Points of dealer 16 or lower? Than dealer must draw more cards.");
+    } else if(infoBox.style.height === "165px") {
+      game.info2(`Your score is ${21 - scoreTextPlr()} points under 21.`);
+      game.info3("Hit or Stand?");
+    }
+    game.info4(''); 
   } else if(scoreTextPlr() === 21 && scoreTextDlr() !== 21) {
     endGame();
-    infoPlayer[0].textContent = "21 punten!";
-    infoPlayer[1].textContent = "Je hebt gewonnen!!";    
-    infoPlayer[2].textContent = "Gefeliciteerd speler.";
-    infoPlayer[3].textContent = "Nog een ronde?";   
+    const threeSevens = arrPlayer.filter((arr) => arr.charAt(0) === '7');
+    if(threeSevens.length === 3) {
+      game.info1("21!!!!");
+      game.info2("THREE SEVENS!! Wow, lucky you!");    
+      game.info3("You've won TEN extra lives!!");
+      game.info4('');
+    } else {
+      game.info1("21!!!!");
+      game.info2("Well done, you've won!");    
+      game.info3("Three extra lives for you.");
+      game.info4('');
+    }   
   } else if(scoreTextPlr() === 22) {
     endGame();
-    infoPlayer[0].textContent = "'BUST', 1 punt teveel.";
-    infoPlayer[1].textContent = "Je hebt verloren.";
-    infoPlayer[2].textContent = "Goed gespeeld, maar helaas.";
-    infoPlayer[3].textContent = "Volgende ronde beter?"; 
+    game.info1("BUST");
+    game.info2("Almost 21, just one too many.");
+    game.info3("You lose one life.");
+    game.info4(''); 
   } else {
     endGame();
-    infoPlayer[0].textContent = `'BUST', ${(scoreTextPlr() - 21)} punten teveel.`;
-    infoPlayer[1].textContent = "Je hebt verloren.";
-    infoPlayer[2].textContent = "Dat is spijtig speler.";
-    infoPlayer[3].textContent = "Revanche?"; 
+    game.info1("BUST");
+    game.info2("That's unfortunate, too many points!");
+    game.info3("You lose two lives.");
+    game.info4(''); 
   }
 };
 
 const showInfoStand = () => {
   if(scoreTextDlr() <= 21) {
     if(scoreTextPlr() < scoreTextDlr()) {
-      infoPlayer[0].textContent = "Je hebt minder punten dan de dealer.";
-      infoPlayer[1].textContent = "Je hebt verloren.";    
-      infoPlayer[2].textContent = "Dat is spijtig speler.";
-      infoPlayer[3].textContent = "Revanche?"; 
+      game.info1('');
+      game.info2("The dealer has more points.");    
+      game.info3("You lose one life.");
+      game.info4(''); 
     } else if(scoreTextPlr() === scoreTextDlr()) {
-      infoPlayer[0].textContent = "'STAND-OFF'.";
-      infoPlayer[1].textContent = "Geen winnaars.";    
-      infoPlayer[2].textContent = "Gelijkspel.";
-      infoPlayer[3].textContent = "Geen verliezers."; 
+      game.info1("PUSH");
+      game.info2("You have the same score as the dealer.");    
+      game.info3("No extra lives for you.");
+      game.info4("PUSH"); 
     } else if(scoreTextPlr() > scoreTextDlr()) {
-      infoPlayer[0].textContent = "Je hebt meer punten dan de dealer.";
-      infoPlayer[1].textContent = "Je hebt gewonnen!";    
-      infoPlayer[2].textContent = "Gefeliciteerd speler.";
-      infoPlayer[3].textContent = "Nog een ronde?";   
+      game.info1('');
+      game.info2("You have more points than the dealer.");     
+      game.info3("You've earned two extra lives!!");
+      game.info4('');   
     }
   } else if(scoreTextDlr() > 21) {
-    infoPlayer[0].textContent = "De dealer heeft teveel punten.";
-    infoPlayer[1].textContent = "Je hebt gewonnen!";    
-    infoPlayer[2].textContent = "'BUST'";
-    infoPlayer[3].textContent = "Gefeliciteerd speler.";   
+    game.info1('');
+    game.info2("The dealer has too many points.");    
+    game.info3("You get one extra life.");
+    game.info4("BUST");   
   }
 };
 
 const endGame = () => {
-  switches.reveal = true;
+  game.reveal = true;
   showScore();
   btnDeal.textContent = 'Replay';
   btnDeal.addEventListener('click', reset);
@@ -306,6 +344,7 @@ const resetText = item => {
 };
 
 const reset = () => {
+  checkCardQuant(arrShuffled);
   btnDeal.textContent = 'Deal';
   btnDeal.removeEventListener('click', reset);
   btnDeal.addEventListener('click', playRound);
@@ -314,10 +353,12 @@ const reset = () => {
   resetArr(arrDlrDeal);
   shuffle(arrRotaPlr);
   shuffle(arrRotaDlr);
-  switches.reveal = false;
+  game.reveal = false;
   for(const text of allText) {
     resetText(text);
   }
   resetChild(cardsPlayer);
   resetChild(cardsDealer);
+  game.info2("You have ... of lives.");    
+  game.info3("Play another round?");
 };

@@ -9,9 +9,12 @@
   <body>
     <div class="containerPlay">
       <div class="containerCards">
-        <p>Player</p>
-        <p>score:</p>
-        <p id="scorePlayer"></p>
+        <p class="info"></p>
+        <p class="name">PLAYER</p>
+        <div class="containerScore">
+          <p>score:</p>
+          <p id="scorePlayer"></p>
+        </div>
         <div class="cardsPlayer"></div>
       </div>
       <div class="containerAction">
@@ -21,17 +24,19 @@
           <button id="btnStand">Stand</button>
         </div>
        <br>
-        <div class="containerInfo">
-          <p class="info Player"></p>
-          <p class="info Player"></p>
-          <p class="info Player"></p>
-          <p class="info Player"></p>
+        <div id="containerInfo">
+          <p class="info"></p>
+          <br>
+          <p class="info"></p>
         </div>   
       </div>
       <div class="containerCards">
-        <p>Dealer</p>
-        <p>score:</p>
-        <p id="scoreDealer" class="hide"></p>
+        <p class="info"></p>
+        <p class="name">DEALER</p>
+        <div class="containerScore">
+          <p>score:</p>
+          <p id="scoreDealer" class="hide"></p>
+        </div>
         <div class="cardsDealer"></div>
       </div>   
     </div>   
