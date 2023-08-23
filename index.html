@@ -18,6 +18,16 @@
         <div class="cardsPlayer"></div>
       </div>
       <div class="containerAction">
+        <div class="containerProgress">
+          <div class="containerRndLvs">
+            <p>round</p>
+            <p id="rounds" class="largeNr"></p>
+          </div>
+          <div class="containerRndLvs">
+            <p id="lives" class="largeNr"></p>
+            <p id="lifeTxt">lives</p>
+          </div>
+        </div>
         <div class="containerButtons">
           <button id="btnHit">Hit</button>
           <button id="btnDeal">Deal</button>
@@ -28,6 +38,44 @@
           <p class="info"></p>
           <br>
           <p class="info"></p>
+        </div>
+        <div id="containerList">
+          <ul class="lifeList">
+            <li>
+              <span class="spanList">+1 life:</span>
+              <br>Dealer's hand value is too high (BUST).
+            </li>
+            <li>
+              <span class="spanList">+2 lives:</span>
+              <br>Player beats Dealer with higher hand value.
+            </li>
+            <li>
+              <span class="spanList">+3 lives:</span>
+              <br>Player's hand value is 21 points.
+            </li>
+            <li>
+              <span class="spanList">+5 lives:</span>
+              <br>Player draws BLACKJACK (Ace + 10).
+            </li>
+          </ul>
+          <ul class="lifeList">
+            <li>
+              <span class="spanList">-1 life:</span>
+              <br>Player's hand value is 1 point too high (BUST).
+            </li>
+            <li>
+              <span class="spanList">-1 lives:</span>
+              <br>Dealer beats Player with higher hand value.
+            </li>
+            <li>
+              <span class="spanList">-2 life:</span>
+              <br>Player's hand value is too high (BUST).
+            </li>
+            <li>
+              <span class="spanList">-2 lives:</span>
+              <br>Dealer draws BLACKJACK.
+            </li>
+          </ul>
         </div>   
       </div>
       <div class="containerCards">

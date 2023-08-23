@@ -1,6 +1,9 @@
 const btnHit = document.getElementById('btnHit');
 const btnStand = document.getElementById('btnStand');
 const btnDeal = document.getElementById('btnDeal');
+const rounds = document.querySelector('#rounds');
+const lives = document.querySelector('#lives');
+const lifeTxt = document.querySelector('#lifeTxt');
 const cardsPlayer = document.querySelector('.cardsPlayer');
 const cardsDealer = document.querySelector('.cardsDealer');
 const scorePlayer = document.querySelector('#scorePlayer');
@@ -8,6 +11,7 @@ const scoreDealer = document.querySelector('#scoreDealer');
 const scoreDlrDeal = document.querySelector('#scoreDealer.hide');
 const info = document.querySelectorAll('.info');
 const infoBox = document.getElementById('containerInfo');
+const listBox = document.getElementById('containerList');
 const allText = document.querySelectorAll(
   '.info, #scoreDealer, #scorePlayer'
 );
@@ -20,8 +24,11 @@ const playRound = () => {
 btnDeal.addEventListener('click', playRound);
 
 const game =  {
+  round: 0,
+  lives: 0,
   reveal: false,
   infoStart: true,
+  lifeStart: true,
   info1(txt) {
     info[0].textContent = txt;
   },
@@ -36,6 +43,8 @@ const game =  {
   },
 };
 
+rounds.textContent = game.round;
+lives.textContent = game.lives;
 game.info2(
   `Beat the dealer with trying to draw a higher hand value,
   but don't go over 21 points!`); 
@@ -88,7 +97,37 @@ const checkCardQuant = (arr) => {
   }
 };
 
+const checkSizeInfoBox = () => {
+  if(infoBox.style.height === "240px") {
+    infoBox.style.transition = "0.6s ease-out";
+  } else if(infoBox.style.height === "165px") {
+    infoBox.style.transition = "0.15s ease-out";
+  }
+};
+
+const substrLife = (nr) => {
+  game.lives -= nr;
+  if(game.lives < 0) {
+    game.lives = 0;
+  }
+  lives.textContent = game.lives;
+  if(game.lives === 1) {
+    lifeTxt.textContent = 'life';
+  } else lifeTxt.textContent = 'lives';
+};
+
+const addLife = (nr) => {
+  game.lives += nr;
+  lives.textContent = game.lives;
+};
+
 const deal = () => {   
+  checkSizeInfoBox();
+  game.round += 1;
+  rounds.textContent = game.round;
+  if(game.lifeStart === true) {
+    addLife(5);
+  }
   btnHit.addEventListener('click', hit); 
   btnStand.addEventListener('click', stand);
   btnDeal.removeEventListener('click', playRound);
@@ -117,6 +156,7 @@ const deal = () => {
 };
 
 const hit = () => {
+  checkSizeInfoBox();
   if(calcPlayer() < 21) {
     const result = arrShuffled.splice(
       Math.floor(Math.random()*arrShuffled.length), 1
@@ -127,11 +167,13 @@ const hit = () => {
   }
   game.infoStart = false;
   infoBox.style.height = "165px";
+  substrLife(1);
   showScore();
   showInfoHit();
 };
 
 const stand = () => {
+  checkSizeInfoBox();
   for(let i = 0; calcDealer() <= 16; i++) {
     const result = arrShuffled.splice(
       Math.floor(Math.random()*arrShuffled.length), 1
@@ -234,11 +276,13 @@ const showInfoBJack = () => {
     game.info2("Congratulations, you've won!!");
     game.info3("You get FIVE extra lives!");
     game.info4(''); 
+    addLife(5);
   } else if(scoreTextDlr() === 21 && scoreTextPlr() !== 21) {
     game.info1('');
     game.info2("You're really out of luck.");
     game.info3("You lose two lives.");
     game.info4("BLACKJACK");    
+    substrLife(2);
   } else if(scoreTextPlr() === 21 && scoreTextDlr() === 21) {
     game.info1("BLACKJACK");
     game.info2("No winners, no losers..."); 
@@ -254,8 +298,13 @@ const showInfoHit = () => {
       game.info2("One live for one card (push HIT). Don't want to buy more cards? Push STAND.");
       game.info3("Points of dealer 16 or lower? Than dealer must draw more cards.");
     } else if(infoBox.style.height === "165px") {
-      game.info2(`Your score is ${21 - scoreTextPlr()} points under 21.`);
-      game.info3("Hit or Stand?");
+      if(scoreTextPlr() === 20) {
+        game.info2(`Your score is 1 point under 21.`);
+        game.info3("Hit or Stand?");
+      } else {
+        game.info2(`Your score is ${21 - scoreTextPlr()} points under 21.`);
+        game.info3("Hit or Stand?");
+      }
     }
     game.info4(''); 
   } else if(scoreTextPlr() === 21 && scoreTextDlr() !== 21) {
@@ -266,11 +315,13 @@ const showInfoHit = () => {
       game.info2("THREE SEVENS!! Wow, lucky you!");    
       game.info3("You've won TEN extra lives!!");
       game.info4('');
+      addLife(10);
     } else {
       game.info1("21!!!!");
       game.info2("Well done, you've won!");    
       game.info3("Three extra lives for you.");
       game.info4('');
+      addLife(3);
     }   
   } else if(scoreTextPlr() === 22) {
     endGame();
@@ -278,12 +329,14 @@ const showInfoHit = () => {
     game.info2("Almost 21, just one too many.");
     game.info3("You lose one life.");
     game.info4(''); 
+    substrLife(1);
   } else {
     endGame();
     game.info1("BUST");
     game.info2("That's unfortunate, too many points!");
     game.info3("You lose two lives.");
     game.info4(''); 
+    substrLife(2);
   }
 };
 
@@ -294,6 +347,7 @@ const showInfoStand = () => {
       game.info2("The dealer has more points.");    
       game.info3("You lose one life.");
       game.info4(''); 
+      substrLife(1);
     } else if(scoreTextPlr() === scoreTextDlr()) {
       game.info1("PUSH");
       game.info2("You have the same score as the dealer.");    
@@ -304,12 +358,14 @@ const showInfoStand = () => {
       game.info2("You have more points than the dealer.");     
       game.info3("You've earned two extra lives!!");
       game.info4('');   
+      addLife(2);
     }
   } else if(scoreTextDlr() > 21) {
     game.info1('');
     game.info2("The dealer has too many points.");    
     game.info3("You get one extra life.");
     game.info4("BUST");   
+    addLife(1);
   }
 };
 
@@ -354,11 +410,26 @@ const reset = () => {
   shuffle(arrRotaPlr);
   shuffle(arrRotaDlr);
   game.reveal = false;
+  game.lifeStart = false;
   for(const text of allText) {
     resetText(text);
   }
   resetChild(cardsPlayer);
   resetChild(cardsDealer);
-  game.info2("You have ... of lives.");    
-  game.info3("Play another round?");
+  if(game.lives >= 10) {
+    game.info2("You have more than plenty of lives.");  
+    game.info3("Ready for the next round?");
+  } else if(game.lives >= 5 && game.lives < 10) {
+    game.info2("You have a decent amount of lives."); 
+    game.info3("Up for playing the next round?");
+  } else if(game.lives >= 2 && game.lives < 5) {
+    game.info2("You have a small amount of lives."); 
+    game.info3("Do you want to play another round?");
+  } else if(game.lives === 1) {
+    game.info2("You only have one life left."); 
+    game.info3("Quit game? Or go for a gamble?");
+  } else {
+    game.info2("It's over, no more lives."); 
+    game.info3("STOP playing this game and do something USEFUL.");
+  }
 };
