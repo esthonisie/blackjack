@@ -224,8 +224,10 @@ const calcAceFluid = arrPerson => {
 
 const calcAceLowScore = (arrPerson, points) => {
   const allAces = arrPerson.filter((arr) => arr.charAt(0) === 'A');
-  if(points > 21 && (points - (allAces.length + 10) < 11)) {
-    allAces.length >= 2 ? points -= 10 : points;
+  const noAces = arrPerson.filter((arr) => arr.charAt(0) !== 'A');
+  const noAcesPts = calcAceFixed(noAces);
+  if(points > 21 && noAcesPts < 11) {
+    allAces.length >= 2 ? points -= 10 : points += 0;
   } return points;
 };
 

@@ -1,13 +1,16 @@
 // Dealer ==> Ace (first one) of 'deal' ALWAYS STAYS 11 points after getting more cards!!
 
-const arrPlayer = ['3-clbs','2-clbs','A-clbs','Q-clbs','A-clbs']; // 17
-const arrDealer = ['3-clbs','2-clbs','A-clbs','Q-clbs','A-clbs']; // 17
+// const arrPlayer = ['3-clbs','2-clbs','A-clbs','Q-clbs','A-clbs']; // 17
+// const arrDealer = ['3-clbs','2-clbs','A-clbs','Q-clbs','A-clbs']; // 17
 
 // const arrPlayer = ['3-clbs','A-clbs','2-clbs','Q-clbs','A-clbs']; // 17
 // const arrDealer = ['3-clbs','A-clbs','2-clbs','Q-clbs','A-clbs']; // 27  <--- !!
 
 // const arrPlayer = ['A-clbs','A-clbs','3-clbs','2-clbs','5-clbs']; // 12
 // const arrDealer = ['3-clbs','2-clbs','A-clbs','5-clbs','A-clbs']; // 12
+
+const arrPlayer = ['A-clbs','A-clbs','Q-clbs','K-clbs','A-clbs', '6-clbs']; // 29
+// const arrDealer = ['A-clbs','A-clbs','Q-clbs','K-clbs','A-clbs', '6-clbs']; // 39
 
 const calcPlayer = () => {
   return calcAceLowScore(arrPlayer, calcAceFluid(arrPlayer));
@@ -56,8 +59,10 @@ const calcAceFluid = arrPerson => {
 
 const calcAceLowScore = (arrPerson, points) => {
   const allAces = arrPerson.filter((arr) => arr.charAt(0) === 'A');
-  if(points > 21 && (points - (allAces.length + 10) < 11)) {
-    allAces.length >= 2 ? points -= 10 : points;
+  const noAces = arrPerson.filter((arr) => arr.charAt(0) !== 'A');
+  const noAcesPts = calcAceFixed(noAces);
+  if(points > 21 && noAcesPts < 11) {
+    allAces.length >= 2 ? points -= 10 : points += 0;
   } return points;
 };
 
@@ -66,4 +71,4 @@ const calcAceLowScore = (arrPerson, points) => {
 // console.log(calcAceFixed(arrDealer)); // 22 wrong --- third array
 
 console.log(calcPlayer());
-console.log(calcDealer());
+// console.log(calcDealer());
