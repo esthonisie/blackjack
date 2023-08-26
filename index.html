@@ -9,11 +9,11 @@
   <body>
     <div class="containerPlay">
       <div class="containerCards">
-        <p class="info"></p>
         <p class="name">PLAYER</p>
+        <p class="info extra"></p>
         <div class="containerScore">
           <p>score:</p>
-          <p id="scorePlayer"></p>
+          <p class="scorePlayer">0</p>
         </div>
         <div class="cardsPlayer"></div>
       </div>
@@ -21,11 +21,11 @@
         <div class="containerProgress">
           <div class="containerRndLvs">
             <p>round</p>
-            <p id="rounds" class="largeNr"></p>
+            <p class="largeNr rounds"></p>
           </div>
           <div class="containerRndLvs">
-            <p id="lives" class="largeNr"></p>
-            <p id="lifeTxt">lives</p>
+            <p class="largeNr lives"></p>
+            <p class="lifeTxt">lives</p>
           </div>
         </div>
         <div class="containerButtons">
@@ -34,56 +34,61 @@
           <button id="btnStand">Stand</button>
         </div>
        <br>
-        <div id="containerInfo">
+        <div class="containerInfo">
           <p class="info"></p>
           <br>
           <p class="info"></p>
         </div>
-        <div id="containerList">
-          <ul class="lifeList">
-            <li>
-              <span class="spanList">+1 life:</span>
-              <br>Dealer's hand value is too high (BUST).
-            </li>
-            <li>
-              <span class="spanList">+2 lives:</span>
-              <br>Player beats Dealer with higher hand value.
-            </li>
-            <li>
-              <span class="spanList">+3 lives:</span>
-              <br>Player's hand value is 21 points.
-            </li>
-            <li>
-              <span class="spanList">+5 lives:</span>
-              <br>Player draws BLACKJACK (Ace + 10).
-            </li>
-          </ul>
-          <ul class="lifeList">
-            <li>
-              <span class="spanList">-1 life:</span>
-              <br>Player's hand value is 1 point too high (BUST).
-            </li>
-            <li>
-              <span class="spanList">-1 lives:</span>
-              <br>Dealer beats Player with higher hand value.
-            </li>
-            <li>
-              <span class="spanList">-2 life:</span>
-              <br>Player's hand value is too high (BUST).
-            </li>
-            <li>
-              <span class="spanList">-2 lives:</span>
-              <br>Dealer draws BLACKJACK.
-            </li>
-          </ul>
-        </div>   
+        <div class="containerBlJack">
+          <div class="blJackTitle">
+            <p>BLACKJACK</p>
+          </div>
+          <div class="containerList">
+            <ul class="lifeList">
+              <li>
+                <span class="spanList">+1 life:</span>
+                <br>Dealer's hand value is too high (BUST).
+              </li>
+              <li>
+                <span class="spanList">+2 lives:</span>
+                <br>Player beats Dealer with higher hand value.
+              </li>
+              <li>
+                <span class="spanList">+3 lives:</span>
+                <br>Player's hand value is 21 points.
+              </li>
+              <li>
+                <span class="spanList">+5 lives:</span>
+                <br>Player draws BLACKJACK (Ace + 10).
+              </li>
+            </ul>
+            <ul class="lifeList">
+              <li>
+                <span class="spanList">-1 life:</span>
+                <br>Player's hand value is 1 point too high (BUST).
+              </li>
+              <li>
+                <span class="spanList">-1 lives:</span>
+                <br>Dealer beats Player with higher hand value.
+              </li>
+              <li>
+                <span class="spanList">-2 lives:</span>
+                <br>Player's hand value is too high (BUST).
+              </li>
+              <li>
+                <span class="spanList">-2 lives:</span>
+                <br>Dealer draws BLACKJACK.
+              </li>
+            </ul>
+          </div>   
+        </div>
       </div>
-      <div class="containerCards">
-        <p class="info"></p>
+      <div class="containerCards"> 
         <p class="name">DEALER</p>
+        <p class="info extra"></p>
         <div class="containerScore">
           <p>score:</p>
-          <p id="scoreDealer" class="hide"></p>
+          <p class="scoreDealer hide">0</p>
         </div>
         <div class="cardsDealer"></div>
       </div>   
