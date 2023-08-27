@@ -101,14 +101,14 @@ const checkCardQuant = (arr) => {
 const checkSizeInfoBox = () => {
   if(infoBox.style.height === "240px") {
     infoBox.style.transition = "0.6s ease-out";
-    allButtons[0].style.transition = "0.6s ease-out";
-    allButtons[1].style.transition = "0.6s ease-out";
-    allButtons[2].style.transition = "0.6s ease-out";
+    for(const button of allButtons) {
+      button.style.transition = "0.6s ease-out";
+    }
   } else if(infoBox.style.height === "165px") {
     infoBox.style.transition = "0.15s ease-out";
-    allButtons[0].style.transition = "0.3s ease-out";
-    allButtons[1].style.transition = "0.3s ease-out";
-    allButtons[2].style.transition = "0.3s ease-out";
+    for(const button of allButtons) {
+      button.style.transition = "0.3s ease-out";
+    }
   }
 };
 
@@ -125,17 +125,17 @@ const setOpacityBJTitle = () => {
 const moveDown = () => {
   infoBox.style.height = "165px";
   infoBox.style.marginTop = "30px";
-  allButtons[0].style.marginTop = "50px";
-  allButtons[1].style.marginTop = "50px";
-  allButtons[2].style.marginTop = "50px";
+  for(const button of allButtons) {
+    button.style.marginTop = "50px";
+  }
 };
 
 const moveUp = () => {
   infoBox.style.height = "240px";
   infoBox.style.marginTop = "5px";
-  allButtons[0].style.marginTop = "0px";
-  allButtons[1].style.marginTop = "0px";
-  allButtons[2].style.marginTop = "0px";
+  for(const button of allButtons) {
+    button.style.marginTop = "0px";
+  }
 };
 
 const substrLife = (nr) => {
