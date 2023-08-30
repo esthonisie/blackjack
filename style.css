@@ -1,5 +1,4 @@
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
   cursor: default;
@@ -12,23 +11,27 @@ body {
 .containerPlay {
   width: 1080px;
   display: flex;
+  flex-direction: row;
   height: auto;
   margin: 40px auto;
-  justify-content: center;
 }
 
 .containerCards {
+  width: 242px;
+  margin-top: 48px;
+  padding: 0 20px;
+}
+
+.containerCardsInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 250px;
 }
 
 .containerAction {
-  width: 510px;
-  height: 700px;
-  padding: 35px 48px;
-  margin: 0 20px;
+  width: 416px;
+  height: 630px;
+  padding: 35px 50px;
   border: 1px solid #a29f8e;
   border-radius: 30px;
 }
@@ -52,9 +55,9 @@ body {
 
 .containerInfo {
   background-color: rgba(162, 159, 142, 0.3);
-  max-width: 415px;
-  height: 240px;
-  padding: 30px 28px;
+  width: 360px;
+  height: 180px;
+  padding: 28px;
   margin-top: 5px;
   margin-bottom: 20px;
   border-radius: 8px;
@@ -69,11 +72,13 @@ body {
 }
 
 .lifeList {
-  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  font-family: 
+    Cambria, Cochin, Georgia, 
+    Times, 'Times New Roman', serif;
   font-size: 16px;
   color: #e9e4c3;
   letter-spacing: 0.05em;
-  width: 412px;
+  width: 414px;
   height: 100px;
   list-style: none;
   margin-left: 2px;
@@ -84,7 +89,9 @@ body {
 }
 
 .spanList {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 
+    'Segoe UI', Tahoma, Geneva, 
+    Verdana, sans-serif;
   color: #fffdef;
 }
 
@@ -98,8 +105,8 @@ body {
   color: rgba(162, 159, 142, 0.4);
   background-color: #274527;
   font-size: 72px;
-  padding: 0 15px 0 12px;
-  width: 412px;
+  padding-left: 12px;
+  width: 404px;
   height: 200px;
   opacity: 1;
   transition: 0.8s ease-out;
@@ -108,7 +115,9 @@ body {
 .largeNr,
 .info {
   color: #fffdef;
-  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  font-family: 
+    Cambria, Cochin, Georgia, 
+    Times, 'Times New Roman', serif;
   font-weight: 700;
 }
 
@@ -135,12 +144,13 @@ body {
   font-family:'Courier New', Courier, monospace;
   color: #fffdef;
   font-size: 30px;
-  margin-top: 48px;
 }
 
 .smallSans {
   color: #e9e4c3;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 
+    'Segoe UI', Tahoma, Geneva, 
+    Verdana, sans-serif;
   letter-spacing: 0.15em;
   font-size: 18px;
 }
@@ -174,17 +184,9 @@ button {
   box-shadow: 
     0 0 12px rgba(31, 38, 113, 0.5), 
     0 0 1px 0 #f1edd5;
-  margin-top: -130px;
-  margin-left: -48px;
 }
 
 .cardsPlayer,
 .cardsDealer {
-  display: flex;
-  flex-direction:row;
-  flex-wrap: wrap;
-  max-width: 220px;
-  width: 220px;
-  padding-top: 130px;
-  padding-left: 48px;
+  margin-left: 13px;
 }

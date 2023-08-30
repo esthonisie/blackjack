@@ -99,12 +99,12 @@ const checkCardQuant = (arr) => {
 };
 
 const checkSizeInfoBox = () => {
-  if(infoBox.style.height === "240px") {
+  if(infoBox.style.height === "180px") {
     infoBox.style.transition = "0.6s ease-out";
     for(const button of allButtons) {
       button.style.transition = "0.6s ease-out";
     }
-  } else if(infoBox.style.height === "165px") {
+  } else if(infoBox.style.height === "110px") {
     infoBox.style.transition = "0.15s ease-out";
     for(const button of allButtons) {
       button.style.transition = "0.3s ease-out";
@@ -123,7 +123,7 @@ const setOpacityBJTitle = () => {
 };
 
 const moveDown = () => {
-  infoBox.style.height = "165px";
+  infoBox.style.height = "110px";
   infoBox.style.marginTop = "30px";
   for(const button of allButtons) {
     button.style.marginTop = "50px";
@@ -131,7 +131,7 @@ const moveDown = () => {
 };
 
 const moveUp = () => {
-  infoBox.style.height = "240px";
+  infoBox.style.height = "180px";
   infoBox.style.marginTop = "5px";
   for(const button of allButtons) {
     button.style.marginTop = "0px";
@@ -185,11 +185,15 @@ const deal = () => {
   arrDlrDeal.push('Back');
   arrDlrDeal.push(result[3]);
   showCards(cardsPlayer, arrPlayer, arrRotaPlr);
-  showCards(cardsDealer, arrDlrDeal, arrRotaDlr);
   showScore();
-  calcAceFixed(arrPlayer) === 21 || 
-  calcAceFixed(arrDealer) === 21 ?
-  showInfoBJack() : showInfoHit();
+  if(calcAceFixed(arrPlayer) === 21
+    || calcAceFixed(arrDealer) === 21) {
+    resetChild(cardsDealer);
+    showInfoBJack();
+  } else {
+    showCards(cardsDealer, arrDlrDeal, arrRotaDlr);
+    showInfoHit();
+  }
 };
 
 const hit = () => {
@@ -285,8 +289,16 @@ const showCards = (cardsPerson, arrPerson, arrRotaPerson) => {
     const imgCard = document.createElement('img');
     imgCard.className = 'imgCard';
     imgCard.src = `./images/${arrPerson[i]}.png`;
-    imgCard.style.transform = `rotate(${arrRotaPerson[i]}deg)`
-    cardsPerson.appendChild(imgCard);
+    imgCard.style.transform = `rotate(${arrRotaPerson[i]}deg)`;
+    if(i % 2 !== 0) {
+      imgCard.style.marginLeft = '-48px';
+    }
+    if(i > 1) {
+      imgCard.style.marginTop = '-130px';
+    }
+    setTimeout(() => {
+      cardsPerson.appendChild(imgCard);
+    }, 25);
   }
 };
 
@@ -296,7 +308,7 @@ const showScore = () => {
     scoreDlrDeal.textContent = `${calcAceFixed(arrDlrDeal)}`;
   } else if(game.reveal === true) {
     scoreDealer.textContent = `${calcDealer()}`;
-    resetChild(cardsDealer);  
+    resetChild(cardsDealer);
     showCards(cardsDealer, arrDealer, arrRotaDlr);
   } 
 };
@@ -335,11 +347,11 @@ const showInfoBJack = () => {
 const showInfoHit = () => {
   if(scoreTextPlr() < 21) {
     game.info1('');
-    if(infoBox.style.height === "240px") {
+    if(infoBox.style.height === "180px") {
       game.info2("One life for one card (push HIT). Don't want to buy more cards? Push STAND.");
       game.info3("Points of dealer 16 or lower? Than dealer must draw more cards.");
       blJackTitle.style.opacity = '0';
-    } else if(infoBox.style.height === "165px") {
+    } else if(infoBox.style.height === "110px") {
       if(scoreTextPlr() === 20) {
         game.info2(`Your score is 1 point under 21.`);
         game.info3("Hit or Stand?");
