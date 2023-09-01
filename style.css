@@ -131,6 +131,10 @@ body {
   letter-spacing: 0.07em;
 }
 
+.info:nth-child(1) {
+  margin-bottom: 20px;
+}
+
 .info.extra {
   color:#eef1d5;
   text-shadow: 
