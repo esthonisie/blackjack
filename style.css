@@ -194,3 +194,12 @@ button {
 .cardsDealer {
   margin-left: 13px;
 }
+
+.copyright {
+  color: rgba(233, 228, 195, 0.3);
+  font-family: 
+    'Segoe UI', Tahoma, Geneva, 
+    Verdana, sans-serif;
+  text-align: center;
+  font-size: 12px;
+}
