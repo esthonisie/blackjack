@@ -99,20 +99,21 @@ const preloadImages = (arrRotaPerson, cardsPerson) => {
     newCard.style.transform = `rotate(${arrRotaPerson[i]}deg)`;
     cardsPerson.appendChild(newCard);
   }
-}
+};
 
 preloadImages(arrRotaPlr, cardsPlayer);
 preloadImages(arrRotaDlr, cardsDealer);
 
 const preloadDeck = () => {
-  
-  for(const card of arrCardDeck()) {
+  const arrTemp = arrCardDeck();
+  arrTemp.push('Back');
+  for(const card of arrTemp) {
     const cardTemp = document.createElement('img');
     cardTemp.src = `./images/${card}.png`; 
     cardTemp.classList.add('cardFull', 'cardPreload');
     cardsDealer.appendChild(cardTemp);
   }
-}
+};
 
 preloadDeck();
 
