@@ -22,6 +22,11 @@ body {
   padding: 0 20px;
 }
 
+.boxCardsPlr,
+.boxCardsDlr {
+  margin-left: 13px;
+}
+
 .containerCardsInfo {
   display: flex;
   flex-direction: column;
@@ -181,18 +186,32 @@ button {
   opacity: 1;
 }
 
-.imgCard {
-  height: 200px;
-  background-color: #f1edd5;
+.cardEmpty,
+.cardPreload {
+  height: 195px;
   border-radius: 12px;
+}
+
+.cardPreload {
+  opacity: 0;
+  position: absolute;
+  margin-left: -48px;
+  margin-top: -130px;
+}
+
+.cardFull {
+  background-color: #f1edd5;
   box-shadow: 
     0 0 12px rgba(31, 38, 113, 0.5), 
     0 0 1px 0 #f1edd5;
 }
 
-.cardsPlayer,
-.cardsDealer {
-  margin-left: 13px;
+.cardEmpty:nth-child(2n) {
+  margin-left: -48px;
+}
+
+.cardEmpty:nth-child(n + 2) {
+  margin-top: -130px;
 }
 
 .copyright {

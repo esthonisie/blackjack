@@ -4,8 +4,8 @@ const btnDeal = document.querySelector('#btnDeal');
 const rounds = document.querySelector('.rounds');
 const lives = document.querySelector('.lives');
 const lifeTxt = document.querySelector('.lifeTxt');
-const cardsPlayer = document.querySelector('.cardsPlayer');
-const cardsDealer = document.querySelector('.cardsDealer');
+const cardsPlayer = document.querySelector('.boxCardsPlr');
+const cardsDealer = document.querySelector('.boxCardsDlr');
 const scorePlayer = document.querySelector('.scorePlayer');
 const scoreDealer = document.querySelector('.scoreDealer');
 const scoreDlrDeal = document.querySelector('.scoreDealer.hide');
@@ -13,6 +13,8 @@ const infoBox = document.querySelector('.containerInfo');
 const blJackTitle = document.querySelector('.blJackTitle');
 const allButtons = document.querySelectorAll('button');
 const info = document.querySelectorAll('.info');
+const cardPlr = document.getElementsByClassName('cardPlr');
+const cardDlr = document.getElementsByClassName('cardDlr');
 
 const playRound = () => {
   btnDeal.textContent === 'Replay' ?
@@ -55,11 +57,6 @@ const arrPlayer = [];
 const arrDealer = [];
 const arrDlrDeal = [];
 
-const arrRotate = [
-  -2.5, -2, -1.5, -1, -0.5, 0.05, 
-  0.5, 1, 1.5, 2, 2.5
-];
-
 const arrCardDeck = () => {
   const values = [
     'K','Q','J','A','2','3','4','5','6','7','8','9','T'
@@ -73,6 +70,13 @@ const arrCardDeck = () => {
   } return combi;
 };
 
+const arrRotate = [
+  -2.5, -2, -1.5, -1, -0.5, 0.05, 
+  0.5, 1, 1.5, 2, 2.5
+];
+const arrRotaPlr = arrRotate.filter(() => true);
+const arrRotaDlr = arrRotate.filter(() => true);
+
 // Fisher-Yates algorithm
 const shuffle = array => { 
   for (let i = array.length - 1; i > 0; i--) { 
@@ -84,10 +88,33 @@ const shuffle = array => {
 
 const arrShuffled = shuffle(arrCardDeck());
 
-const arrRotaPlr = arrRotate.filter(() => true);
-const arrRotaDlr = arrRotate.filter(() => true);
-shuffle(arrRotaPlr);
-shuffle(arrRotaDlr);
+const preloadImages = (arrRotaPerson, cardsPerson) => {
+  for(let i = 0; i < arrRotate.length; i++) {
+    const newCard = document.createElement('img');
+    newCard.src = './images/Empty.png'; 
+    if(cardsPerson === cardsPlayer ) {
+      newCard.classList.add('cardEmpty', 'cardPlr');
+    } else newCard.classList.add('cardEmpty', 'cardDlr');
+    shuffle(arrRotaPerson);
+    newCard.style.transform = `rotate(${arrRotaPerson[i]}deg)`;
+    cardsPerson.appendChild(newCard);
+  }
+}
+
+preloadImages(arrRotaPlr, cardsPlayer);
+preloadImages(arrRotaDlr, cardsDealer);
+
+const preloadDeck = () => {
+  
+  for(const card of arrCardDeck()) {
+    const cardTemp = document.createElement('img');
+    cardTemp.src = `./images/${card}.png`; 
+    cardTemp.classList.add('cardFull', 'cardPreload');
+    cardsDealer.appendChild(cardTemp);
+  }
+}
+
+preloadDeck();
 
 const checkCardQuant = (arr) => {
   if(arr.length <= 16) {
@@ -184,14 +211,13 @@ const deal = () => {
   arrDealer.push(result[1],result[3]);
   arrDlrDeal.push('Back');
   arrDlrDeal.push(result[3]);
-  showCards(cardsPlayer, arrPlayer, arrRotaPlr);
+  showCards(cardPlr, arrPlayer);
   showScore();
   if(calcAceFixed(arrPlayer) === 21
     || calcAceFixed(arrDealer) === 21) {
-    resetChild(cardsDealer);
     showInfoBJack();
   } else {
-    showCards(cardsDealer, arrDlrDeal, arrRotaDlr);
+    showCards(cardDlr, arrDlrDeal);
     showInfoHit();
   }
 };
@@ -205,8 +231,7 @@ const hit = () => {
       Math.floor(Math.random()*arrShuffled.length), 1
     );
     arrPlayer.push(result[0]);
-    resetChild(cardsPlayer);
-    showCards(cardsPlayer, arrPlayer, arrRotaPlr);
+    showCards(cardPlr, arrPlayer);
   }
   game.infoStart = false;
   moveDown();
@@ -284,21 +309,10 @@ const calcDealer = () => {
   } else return calcAceLowScore(arrDealer, calcAceFluid(arrDealer));
 };
 
-const showCards = (cardsPerson, arrPerson, arrRotaPerson) => {
+const showCards = (cardPrsn, arrPerson) => {
   for(let i = 0; i < arrPerson.length; i++) {
-    const imgCard = document.createElement('img');
-    imgCard.className = 'imgCard';
-    imgCard.src = `./images/${arrPerson[i]}.png`;
-    imgCard.style.transform = `rotate(${arrRotaPerson[i]}deg)`;
-    if(i % 2 !== 0) {
-      imgCard.style.marginLeft = '-48px';
-    }
-    if(i > 1) {
-      imgCard.style.marginTop = '-130px';
-    }
-    setTimeout(() => {
-      cardsPerson.appendChild(imgCard);
-    }, 40);
+    cardPrsn[i].classList.add('cardFull');
+    cardPrsn[i].src = `./images/${arrPerson[i]}.png`;
   }
 };
 
@@ -308,8 +322,7 @@ const showScore = () => {
     scoreDlrDeal.textContent = `${calcAceFixed(arrDlrDeal)}`;
   } else if(game.reveal === true) {
     scoreDealer.textContent = `${calcDealer()}`;
-    resetChild(cardsDealer);
-    showCards(cardsDealer, arrDealer, arrRotaDlr);
+    showCards(cardDlr, arrDealer);
   } 
 };
 
@@ -485,9 +498,14 @@ const resetArr = arr => {
   arr.length = 0;
 };
 
-const resetChild = cardsPerson => {
-  while(cardsPerson.firstChild) {
-    cardsPerson.removeChild(cardsPerson.firstChild);
+const resetCards = (cardPrsn, arrPerson, arrRotaPrsn) => {
+  for(let i = 0; i < arrPerson.length; i++) {
+    cardPrsn[i].classList.remove('cardFull');
+    cardPrsn[i].src = `./images/Empty.png`;
+  }
+  shuffle(arrRotaPrsn);
+  for(let i = 0; i < arrRotate.length; i++) {
+    cardPrsn[i].style.transform = `rotate(${arrRotaPrsn[i]}deg)`;
   }
 };
 
@@ -499,12 +517,10 @@ const reset = () => {
   scoreDealer.textContent = 0;
   scorePlayer.textContent = 0;
   game.reveal = false;
+  resetCards(cardPlr, arrPlayer, arrRotaPlr);
+  resetCards(cardDlr, arrDealer, arrRotaDlr);
   resetArr(arrPlayer);
   resetArr(arrDealer);
   resetArr(arrDlrDeal);
-  shuffle(arrRotaPlr);
-  shuffle(arrRotaDlr);
-  resetChild(cardsPlayer);
-  resetChild(cardsDealer);
   showInfoNextRound();
 };
