@@ -83,6 +83,7 @@ body {
   font-size: 16px;
   color: #e9e4c3;
   letter-spacing: 0.05em;
+  white-space: nowrap;
   width: 414px;
   height: 100px;
   list-style: none;
@@ -111,7 +112,7 @@ body {
   background-color: #274527;
   font-size: 72px;
   padding-left: 12px;
-  width: 404px;
+  width: 414px;
   height: 200px;
   opacity: 1;
   transition: 0.8s ease-out;
