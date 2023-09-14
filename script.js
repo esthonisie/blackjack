@@ -16,46 +16,23 @@ const info = document.querySelectorAll(".info");
 const cardPlr = document.getElementsByClassName("cardPlr");
 const cardDlr = document.getElementsByClassName("cardDlr");
 
-// **: je gebruikt regelmatig HTML content om de state van je JS code te bepalen.
-// persoonlijk zou ik dat omdraaien: in je JS code bepaal je de state, en je
-// schrijft deze alleen naar je HTML code, en leest dus niet uit je HTML code.
-// Dit maakt m.i. je code minder foutgevoelig en leesbaarder
-
-const playRound = () => {
-  // TODO: **
-  btnDeal.textContent === "Replay" ? reset() : deal();
-};
-
-btnDeal.addEventListener("click", playRound);
-
 // TODO: maak een aparte class aan voor onderstaand object
 const game = {
   round: 0,
   lives: 0,
   reveal: false,
-  infoStart: true,
-  // TODO: onderstaande 4 functies zijn erg identiek, voeg ze daarom samen tot 1 functie.
-  // kies ook iets lading-dekkendere namen
-  info1(txt) {
-    info[0].textContent = txt;
-  },
-  info2(txt) {
-    info[1].textContent = txt;
-  },
-  info3(txt) {
-    info[2].textContent = txt;
-  },
-  info4(txt) {
-    info[3].textContent = txt;
+  intro: true,
+  displayInfo(index, txt) {
+    info[index - 1].textContent = txt;
   },
 };
 
 const showInfoStartGame = () => {
-  game.info2(
+  game.displayInfo(2,
     `Beat the dealer with trying to draw a higher hand value,
     but don't go over 21 points!`
   );
-  game.info3("Push the DEAL button to start the game.");
+  game.displayInfo(3, "Push the DEAL button to start the game.");
 };
 
 showInfoStartGame();
@@ -68,19 +45,7 @@ const arrDlrDeal = [];
 
 const arrCardDeck = () => {
   const values = [
-    "K",
-    "Q",
-    "J",
-    "A",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "T",
+    "K", "Q", "J", "A", "2", "3", "4", "5", "6", "7", "8", "9", "T"
   ];
   const suits = ["-Clbs", "-Dmds", "-Hrts", "-Spds"];
   const combi = [];
@@ -145,21 +110,6 @@ const checkCardQuant = (arr) => {
   }
 };
 
-const checkSizeInfoBox = () => {
-  // TODO: **
-  if (infoBox.style.height === "180px") {
-    infoBox.style.transition = "0.6s ease-out";
-    for (const button of allButtons) {
-      button.style.transition = "0.6s ease-out";
-    }
-  } else if (infoBox.style.height === "110px") {
-    infoBox.style.transition = "0.15s ease-out";
-    for (const button of allButtons) {
-      button.style.transition = "0.3s ease-out";
-    }
-  }
-};
-
 const setOpacityBJTitle = () => {
   blJackTitle.style.opacity = "1";
   blJackTitle.addEventListener("mouseover", () => {
@@ -171,17 +121,25 @@ const setOpacityBJTitle = () => {
 };
 
 const moveDown = () => {
+  infoBox.style.transition = "0.6s ease-out";
   infoBox.style.height = "110px";
   infoBox.style.marginTop = "30px";
   for (const button of allButtons) {
+    button.style.transition = 
+      "margin-top 0.6s ease-out, opacity 0.35s ease-out"
+    ;
     button.style.marginTop = "50px";
   }
 };
 
 const moveUp = () => {
+  infoBox.style.transition = "0.15s ease-out";
   infoBox.style.height = "180px";
   infoBox.style.marginTop = "5px";
   for (const button of allButtons) {
+    button.style.transition = 
+      "margin-top 0.3s ease-out, opacity 0.35s ease-out"
+    ;
     button.style.marginTop = "0px";
   }
 };
@@ -206,7 +164,6 @@ const addLife = (nr) => {
 };
 
 const deal = () => {
-  checkSizeInfoBox();
   if (game.lives === 0) {
     addLife(5);
     game.round = 0;
@@ -215,11 +172,11 @@ const deal = () => {
   rounds.textContent = game.round;
   btnHit.addEventListener("click", hit);
   btnStand.addEventListener("click", stand);
-  btnDeal.removeEventListener("click", playRound);
+  btnDeal.removeEventListener("click", deal);
   opacity(btnHit, 1);
   opacity(btnStand, 1);
   opacity(btnDeal, 0.3);
-  if (game.infoStart === true) {
+  if (game.intro === true) {
     moveUp();
   }
   const result = [];
@@ -242,36 +199,38 @@ const deal = () => {
   }
 };
 
+btnDeal.addEventListener("click", deal);
+
 const hit = () => {
-  checkSizeInfoBox();
   setOpacityBJTitle();
-  if (calcPlayer() < 21 && game.lives > 0) {
+  if (scoreTextPlr() < 21 && game.lives > 0) {
     substrLife(1);
     const result = arrShuffled.splice(
-      Math.floor(Math.random() * arrShuffled.length),
-      1
+      Math.floor(Math.random() * arrShuffled.length), 1
     );
     arrPlayer.push(result[0]);
     showCards(cardPlr, arrPlayer);
   }
-  game.infoStart = false;
-  moveDown();
+  if (game.intro === true) {
+    moveDown();
+    game.intro = false;
+  }
   showScore();
   showInfoHit();
 };
 
 const stand = () => {
-  checkSizeInfoBox();
   setOpacityBJTitle();
   for (let i = 0; calcDealer() <= 16; i++) {
     const result = arrShuffled.splice(
-      Math.floor(Math.random() * arrShuffled.length),
-      1
+      Math.floor(Math.random() * arrShuffled.length), 1
     );
     arrDealer.push(result[0]);
   }
-  game.infoStart = false;
-  moveDown();
+  if (game.intro === true) {
+    moveDown();
+    game.intro = false;
+  }
   endGame();
   showInfoStand();
 };
@@ -302,7 +261,12 @@ const calcAceFluid = (arrPerson) => {
   let points = 0;
   for (const item of arrPerson) {
     const result = item.charAt(0);
-    if (result === "K" || result === "Q" || result === "J" || result === "T") {
+    if (
+      result === "K" ||
+      result === "Q" ||
+      result === "J" ||
+      result === "T"
+    ) {
       points += 10;
     } else if (result === "A") {
       continue;
@@ -346,19 +310,7 @@ const showCards = (cardPrsn, arrPerson) => {
   }
 };
 
-const showScore = () => {
-  scorePlayer.textContent = `${calcPlayer()}`;
-  if (game.reveal === false) {
-    scoreDlrDeal.textContent = `${calcAceFixed(arrDlrDeal)}`;
-  } else if (game.reveal === true) {
-    scoreDealer.textContent = `${calcDealer()}`;
-    showCards(cardDlr, arrDealer);
-  }
-};
-
-// TODO: op dit moment heb je voor bijv. de scores van dealer en player een HTML
-// query-selector bovenaan je script en een "getter" functie zoals hier onder, om
-// de score uit te lezen. Verder heb je alles goed geordend in functies. Maar
+// TODO: -aangepast- ...Verder heb je alles goed geordend in functies. Maar
 // qua leesbaarheid kan het nog wat beter, d.w.z. om je code te begrijpen moet je nu
 // een lange lijst aan functies van boven naar beneden lezen. Dit zou m.i. nog iets
 // beter geordend kunnen worden, door naast functies ook classes te gebruiken.
@@ -369,101 +321,116 @@ const showScore = () => {
 // die bovenaan je script staan in classes verdelen.
 
 const scoreTextPlr = () => {
-  return parseInt(scorePlayer.textContent);
+  const score = calcPlayer();
+  return score;
 };
 
 const scoreTextDlr = () => {
-  return parseInt(scoreDealer.textContent);
+  const score = calcDealer();
+  return score;
+};
+
+const showScore = () => {
+  scorePlayer.textContent = `${scoreTextPlr()}`;
+  if (game.reveal === false) {
+    scoreDlrDeal.textContent = `${calcAceFixed(arrDlrDeal)}`;
+  } else if (game.reveal === true) {
+    scoreDealer.textContent = `${scoreTextDlr()}`;
+    showCards(cardDlr, arrDealer);
+  }
 };
 
 const showInfoBJack = () => {
   moveDown();
   endGame();
   if (scoreTextPlr() === 21 && scoreTextDlr() !== 21) {
-    game.info1("BLACKJACK");
-    game.info2("Congratulations, you've won!!");
-    game.info3("You get FIVE extra lives!");
-    game.info4("");
+    game.displayInfo(1, "BLACKJACK");
+    game.displayInfo(2, "Congratulations, you've won!!");
+    game.displayInfo(3, "You get FIVE extra lives!");
+    game.displayInfo(4, "");
     addLife(5);
   } else if (scoreTextDlr() === 21 && scoreTextPlr() !== 21) {
-    game.info1("");
-    game.info2("You're really out of luck.");
-    game.info3("You lose three lives.");
-    game.info4("BLACKJACK");
+    game.displayInfo(1, "");
+    game.displayInfo(2, "You're really out of luck.");
+    game.displayInfo(3, "You lose three lives.");
+    game.displayInfo(4, "BLACKJACK");
     substrLife(3);
     if (game.lives === 0) {
-      game.info3("And zero lives! It's game over.");
+      game.displayInfo(3, "And zero lives! It's game over.");
     }
   } else if (scoreTextPlr() === 21 && scoreTextDlr() === 21) {
-    game.info1("BLACKJACK");
-    game.info2("No winners, no losers...");
-    game.info3("And no extra lives.");
-    game.info4("BLACKJACK");
+    game.displayInfo(1, "BLACKJACK");
+    game.displayInfo(2, "No winners, no losers...");
+    game.displayInfo(3, "And no extra lives.");
+    game.displayInfo(4, "BLACKJACK");
   }
 };
 
 const showInfoHit = () => {
   if (scoreTextPlr() < 21) {
-    game.info1("");
-    if (infoBox.style.height === "180px") {
-      game.info2(
-        "One life for one card (push HIT). Don't want to buy more cards? Push STAND."
+    game.displayInfo(1, "");
+    if (game.intro === true) {
+      game.displayInfo(2,
+        `One life for one card (push HIT).
+        Don't want to buy more cards? Push STAND.`
       );
-      game.info3(
+      game.displayInfo(3,
         "Points of dealer 16 or lower? Than dealer must draw more cards."
       );
       blJackTitle.style.opacity = "0";
-    } else if (infoBox.style.height === "110px") {
+    } else if (game.intro === false) {
       if (game.lives === 0) {
         opacity(btnHit, 0.3);
-        game.info2("Oh no, zero lives!");
-        game.info3("Push 'STAND' for one more chance.");
+        game.displayInfo(2, "Oh no, zero lives!");
+        game.displayInfo(3, "Push 'STAND' for one more chance.");
       } else if (scoreTextPlr() === 20) {
-        game.info2(`Your score is 1 point under 21.`);
-        game.info3("Hit or Stand?");
+        game.displayInfo(2, `Your score is 1 point under 21.`);
+        game.displayInfo(3, "Hit or Stand?");
       } else {
-        game.info2(`Your score is ${21 - scoreTextPlr()} points under 21.`);
-        game.info3("Hit or Stand?");
+        game.displayInfo(2,
+          `Your score is ${21 - scoreTextPlr()} points under 21.`
+        );
+        game.displayInfo(3, "Hit or Stand?");
       }
     }
-    game.info4("");
+    game.displayInfo(4, "");
   } else if (scoreTextPlr() === 21 && scoreTextDlr() !== 21) {
     endGame();
     const threeSevens = arrPlayer.filter((arr) => arr.charAt(0) === "7");
     if (threeSevens.length === 3) {
-      game.info1("21!!!!");
-      game.info2("THREE SEVENS! Wow, lucky you!");
-      game.info3("You've won TEN extra lives!!");
-      game.info4("");
+      game.displayInfo(1, "21!!!!");
+      game.displayInfo(2, "THREE SEVENS! Wow, lucky you!");
+      game.displayInfo(3, "You've won TEN extra lives!!");
+      game.displayInfo(4, "");
       addLife(10);
     } else {
-      game.info1("21!!!!");
-      game.info2("Well done, you've won!");
-      game.info3("Three extra lives for you.");
-      game.info4("");
+      game.displayInfo(1, "21!!!!");
+      game.displayInfo(2, "Well done, you've won!");
+      game.displayInfo(3, "Three extra lives for you.");
+      game.displayInfo(4, "");
       addLife(3);
     }
   } else if (scoreTextPlr() === 22) {
     endGame();
-    game.info1("BUST");
-    game.info2("Almost 21, just one too many.");
-    game.info3("You lose one life.");
-    game.info4("");
+    game.displayInfo(1, "BUST");
+    game.displayInfo(2, "Almost 21, just one too many.");
+    game.displayInfo(3, "You lose one life.");
+    game.displayInfo(4, "");
     substrLife(1);
     if (game.lives === 0) {
-      game.info2("BUST and zero lives!");
-      game.info3("It's over, no more rounds to play.");
+      game.displayInfo(2, "BUST and zero lives!");
+      game.displayInfo(3, "It's over, no more rounds to play.");
     }
   } else {
     endGame();
-    game.info1("BUST");
-    game.info2("That's unfortunate, too many points!");
-    game.info3("You lose two lives.");
-    game.info4("");
+    game.displayInfo(1, "BUST");
+    game.displayInfo(2, "That's unfortunate, too many points!");
+    game.displayInfo(3, "You lose two lives.");
+    game.displayInfo(4, "");
     substrLife(2);
     if (game.lives === 0) {
-      game.info2("BUST and zero lives!");
-      game.info3("It's over, no more rounds to play.");
+      game.displayInfo(2, "BUST and zero lives!");
+      game.displayInfo(3, "It's over, no more rounds to play.");
     }
   }
 };
@@ -471,56 +438,56 @@ const showInfoHit = () => {
 const showInfoStand = () => {
   if (scoreTextDlr() <= 21) {
     if (scoreTextPlr() < scoreTextDlr()) {
-      game.info1("");
-      game.info2("The dealer has more points.");
-      game.info3("You lose one life.");
-      game.info4("");
+      game.displayInfo(1, "");
+      game.displayInfo(2, "The dealer has more points.");
+      game.displayInfo(3, "You lose one life.");
+      game.displayInfo(4, "");
       substrLife(1);
       if (game.lives === 0) {
-        game.info3("And it's game over.");
+        game.displayInfo(3, "And it's game over.");
       }
     } else if (scoreTextPlr() === scoreTextDlr()) {
-      game.info1("PUSH");
-      game.info2("You have the same score as the dealer.");
-      game.info3("No extra lives for you.");
-      game.info4("PUSH");
+      game.displayInfo(1, "PUSH");
+      game.displayInfo(2, "You have the same score as the dealer.");
+      game.displayInfo(3, "No extra lives for you.");
+      game.displayInfo(4, "PUSH");
       if (game.lives === 0) {
-        game.info3("Still zero lives, it's game over.");
+        game.displayInfo(3, "Still zero lives, it's game over.");
       }
     } else if (scoreTextPlr() > scoreTextDlr()) {
-      game.info1("");
-      game.info2("You have more points than the dealer.");
-      game.info3("You've earned two extra lives!!");
-      game.info4("");
+      game.displayInfo(1, "");
+      game.displayInfo(2, "You have more points than the dealer.");
+      game.displayInfo(3, "You've earned two extra lives!!");
+      game.displayInfo(4, "");
       addLife(2);
     }
   } else if (scoreTextDlr() > 21) {
-    game.info1("");
-    game.info2("The dealer has too many points.");
-    game.info3("You get one extra life.");
-    game.info4("BUST");
+    game.displayInfo(1, "");
+    game.displayInfo(2, "The dealer has too many points.");
+    game.displayInfo(3, "You get one extra life.");
+    game.displayInfo(4, "BUST");
     addLife(1);
   }
 };
 
 const showInfoNextRound = () => {
-  game.info1("");
-  game.info4("");
+  game.displayInfo(1, "");
+  game.displayInfo(4, "");
   if (game.lives >= 10) {
-    game.info2("You have more than plenty of lives.");
-    game.info3("Ready for the next round?");
+    game.displayInfo(2, "You have more than plenty of lives.");
+    game.displayInfo(3, "Ready for the next round?");
   } else if (game.lives >= 5 && game.lives < 10) {
-    game.info2("You have a decent amount of lives.");
-    game.info3("Up for playing the next round?");
+    game.displayInfo(2, "You have a decent amount of lives.");
+    game.displayInfo(3, "Up for playing the next round?");
   } else if (game.lives >= 2 && game.lives < 5) {
-    game.info2("You have a small amount of lives.");
-    game.info3("Do you want to play another round?");
+    game.displayInfo(2, "You have a small amount of lives.");
+    game.displayInfo(3, "Do you want to play another round?");
   } else if (game.lives === 1) {
-    game.info2("You only have one life left.");
-    game.info3("Quit game? Or go for a gamble?");
+    game.displayInfo(2, "You only have one life left.");
+    game.displayInfo(3, "Quit game? Or go for a gamble?");
   } else {
-    game.info2("STOP playing this game,");
-    game.info3("and go do something USEFUL!");
+    game.displayInfo(2, "STOP playing this game,");
+    game.displayInfo(3, "and go do something USEFUL!");
   }
 };
 
@@ -558,7 +525,7 @@ const resetCards = (cardPrsn, arrPerson, arrRotaPrsn) => {
 const reset = () => {
   checkCardQuant(arrShuffled);
   btnDeal.removeEventListener("click", reset);
-  btnDeal.addEventListener("click", playRound);
+  btnDeal.addEventListener("click", deal);
   btnDeal.textContent = "Deal";
   scoreDealer.textContent = 0;
   scorePlayer.textContent = 0;
